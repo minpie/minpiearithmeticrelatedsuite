@@ -15,6 +15,17 @@ version: 0.0.1
 #include "mars.h"
 
 // function:
+void TestPrintHex(uint8_t * pData, uint32_t len){
+    for(uint32_t i=0; i<len; i++){
+        if(i && (!(i % 4))){
+            printf(" ");
+        }
+        printf("%02x", pData[i]);
+    }
+    return;
+}
+
+
 void Test1(void){
     uint8_t a[256] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -75,24 +86,33 @@ void Test1(void){
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
     //
-
-
     bnuz_t bn_a;
     bnuz_t bn_b;
     bnuz_t bn_c;
 
-
     // init:
-    BnuzInit(bn_a);
-    BnuzInit(bn_b);
-    BnuzInit(bn_c);
+    BnuzInit(bn_a); // init bn_a
+    BnuzInit(bn_b); // init bn_b
+    BnuzInit(bn_c); // init bn_c
 
+    // bytes -> big number:
+    BnuzBa2Bn(bn_a, a, 256); // bn_a = a
+    BnuzBa2Bn(bn_a, a, 256); // bn_b = b
+
+    // operation:
+
+    // big number -> bytes:
+    BnuzBn2Ba(c, 256, bn_c); // c = bn_c
+
+    // print result:
+    printf("a[256] =\n"); TestPrintHex(a, 256); printf("\n");
+    printf("b[256] =\n"); TestPrintHex(b, 256); printf("\n");
+    printf("c[256] =\n"); TestPrintHex(c, 256); printf("\n");
 
     // final:
-    BnuzFinal(bn_a);
-    BnuzFinal(bn_b);
-    BnuzFinal(bn_c);
-
+    BnuzFinal(bn_a); // final bn_a
+    BnuzFinal(bn_b); // final bn_b
+    BnuzFinal(bn_c); // final bn_c
     return;
 }
 

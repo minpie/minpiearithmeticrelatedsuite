@@ -15,6 +15,11 @@ version: 0.0.1
 
 // include:
 #include <stdint.h>
+#include <malloc.h>
+
+
+// constant:
+#define CONST_SIZE_DEFAULT_BNUZ_WORDS 1 // default value of number of words used when allocate pData in BnuzInit()
 
 
 // parameter:
@@ -22,15 +27,20 @@ version: 0.0.1
 
 
 // configure with the parameter:
-#if((PARM_SIZE_WORD <= 64) && (PARM_SIZE_WORD > 32))
+#if(PARM_SIZE_WORD == 64)
 typedef uint64_t bnuword_t;
-#elif(PARM_SIZE_WORD > 16)
+#elif(PARM_SIZE_WORD == 32)
 typedef uint32_t bnuword_t;
-#elif(PARM_SIZE_WORD > 8)
+#elif(PARM_SIZE_WORD == 16)
 typedef uint16_t bnuword_t;
-#elif(PARM_SIZE_WORD > 1)
+#elif(PARM_SIZE_WORD == 8)
 typedef uint8_t bnuword_t;
 #endif
+
+
+// define:
+#define MARS_API_EXPORT extern // define macro for export function: i don't wanna be fxxked
+#define MARS_API_LOCAL // define macro for local function
 
 
 // datatype:
@@ -45,9 +55,11 @@ typedef _bnuz_t * bnuzptr_t;
 
 
 // function prototype:
-void BnuzInit(bnuzptr_t pIn);
-void BnuzFinal(bnuzptr_t pIn);
-
+// Bnuz: unsigned integer related function:
+MARS_API_EXPORT void BnuzInit(bnuzptr_t pIn);
+MARS_API_EXPORT void BnuzFinal(bnuzptr_t pIn);
+MARS_API_EXPORT void BnuzBa2Bn(bnuzptr_t pOut, uint8_t * pBaIn, uint32_t lenBaIn);
+MARS_API_EXPORT void BnuzBn2Ba(uint8_t * pBaOut, uint32_t lenBaOut, bnuzptr_t pIn);
 
 #endif
 // end code
