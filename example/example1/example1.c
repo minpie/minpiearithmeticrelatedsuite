@@ -1,6 +1,6 @@
 /*
 example1.c
-00000
+
 created: 2026.02.16
 last modified: 2026.02.16
 author: minpie
