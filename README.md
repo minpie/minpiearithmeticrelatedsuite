@@ -1,5 +1,5 @@
 # README
-Minpie's Arithmetic Related Suite, or M.A.R.S
+Minpie's Arithmetic Related Suite, or M.A.R.S.
 * * *
 ## Notice
 All content in this repository is created primarily for the author's personal record-keeping purposes.

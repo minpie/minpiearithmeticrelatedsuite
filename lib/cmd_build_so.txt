@@ -1,0 +1,7 @@
+#
+gcc \
+-fPIC \
+-shared \
+-I inc \
+-o lib/libmars.so \
+-c src/mars.c
