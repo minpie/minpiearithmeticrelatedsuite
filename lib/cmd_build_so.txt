@@ -4,4 +4,5 @@ gcc \
 -shared \
 -I inc \
 -o lib/libmars.so \
--c src/mars.c
+-c src/mars.c \
+-lm

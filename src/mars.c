@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.02.16
+last modified: 2026.06.30
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -14,6 +14,95 @@ version: 0.0.1
 
 
 // function:
+// Bnh: utility function:
+MARS_API_EXPORT uint32_t BnhGetDigitsInBytes_LE(
+    uint8_t * pBaIn,
+    uint32_t lenBaIn
+)
+{
+    /*
+    uint32_t BnhGetDigitsInBytes_LE(
+        uint8_t * pBaIn,
+        uint32_t lenBaIn
+    );
+
+    Arg:
+    - pBaIn: target (uint8_t) bytes array pointer
+    - lenBaIn: length of (uint8_t) source array (pBaIn) refers
+
+    Do:
+    - Get ceil(log8((the raw number) | 1)), in other words, "size in bytes"
+
+    Return:
+    - the size as (uint32_t)
+
+    Other info:
+    - the byte data in (pBaIn) will be regarded as little endian.
+    */
+    //
+    if((!pBaIn) || (!lenBaIn)){
+        // exception: pBaIn is NULL OR lenBaIn is zero.
+        return 0;
+    }
+    // else:
+    uint32_t result = lenBaIn;
+    for(uint32_t i=0; i<lenBaIn; i++){
+        if(*(pBaIn + lenBaIn - 1 - i)){
+            break;
+        }else{
+            result--;
+        }
+    }
+
+    // return:
+    return result;
+}
+
+MARS_API_EXPORT uint32_t BnhGetDigitsInBytes_BE(
+    uint8_t * pBaIn,
+    uint32_t lenBaIn
+)
+{
+    /*
+    uint32_t BnhGetDigitsInBytes_BE(
+        uint8_t * pBaIn,
+        uint32_t lenBaIn
+    );
+
+    Arg:
+    - pBaIn: target (uint8_t) bytes array pointer
+    - lenBaIn: length of (uint8_t) source array (pBaIn) refers
+
+    Do:
+    - Get ceil(log8((the raw number) | 1)), in other words, "size in bytes"
+
+    Return:
+    - the size as (uint32_t)
+
+    Other info:
+    - the byte data in (pBaIn) will be regarded as big endian.
+    */
+    //
+    if((!pBaIn) || (!lenBaIn)){
+        // exception: pBaIn is NULL OR lenBaIn is zero.
+        return 0;
+    }
+    // else:
+    uint32_t result = 0;
+    result = lenBaIn;
+    for(uint32_t i=0; i<lenBaIn; i++){
+        if(*(pBaIn + i)){
+            break;
+        }else{
+            result--;
+        }
+    }
+
+    // return:
+    return result;
+}
+
+
 // Bnuz: unsigned integer related function:
 MARS_API_EXPORT void BnuzInit(
     bnuzptr_t pIn
@@ -48,6 +137,7 @@ MARS_API_EXPORT void BnuzInit(
         return;
     }
     // else:
+    memset((pIn->pData), 0, (CONST_SIZE_DEFAULT_BNUZ_WORDS * sizeof(bnuword_t)));
     pIn->allocated = CONST_SIZE_DEFAULT_BNUZ_WORDS;
     pIn->used = 0;
     
@@ -83,11 +173,7 @@ MARS_API_EXPORT void BnuzFinal(
         return;
     }
     // else:
-    bnuword_t * ptr = pIn->pData;
-    for(uint32_t i=0; i<(pIn->allocated); i++){
-        ptr = (pIn->pData) + i;
-        free((void *)ptr);
-    }
+    free(pIn->pData);
     pIn->pData = NULL;
     pIn->allocated = 0;
     pIn->used = 0;
@@ -129,6 +215,24 @@ MARS_API_EXPORT void BnuzBa2Bn(
         return;
     }
     // else:
+    uint32_t digitsInBytes = 0;
+    uint32_t neededWords = 0;
+    digitsInBytes = BnhGetDigitsInBytes_BE(pBaIn, lenBaIn); // get digits in bytes
+    neededWords = (uint32_t)(ceil(((double)digitsInBytes) / (PARM_SIZE_WORD >> 3))); // get needed words from needed bytes
+    neededWords = MAX(neededWords, 1);
+    pOut->pData = realloc((void *)(pOut->pData), ((PARM_SIZE_WORD >> 3) * neededWords)); // reallocate words
+    pOut->allocated = neededWords;
+    pOut->used = digitsInBytes;
+    memset((pOut->pData), 0, ((PARM_SIZE_WORD >> 3) * neededWords));
+    
+    if(!(pOut->pData)){
+        // exception: failed to realloc()
+        return;
+    }
+    // else:
+    for(uint32_t i=0; i<digitsInBytes; i++){
+        *(((uint8_t *)(pOut->pData)) + i) = (uint8_t)(*(pBaIn + lenBaIn - 1 - i));
+    }
 
     // return:
     return; 
@@ -167,8 +271,142 @@ MARS_API_EXPORT void BnuzBn2Ba(
         return;
     }
     // else:
+    for(uint32_t i=0; ((i<lenBaOut) && (i<(pIn->used))); i++){
+        *(pBaOut + lenBaOut - 1 - i) = *(((uint8_t *)(pIn->pData)) + i);
+    }
 
     // return:
     return; 
+}
+
+MARS_API_EXPORT int32_t BnuzCompare(
+    bnuzptr_t pIn1,
+    bnuzptr_t pIn2
+)
+{
+    /*
+    int32_t BnuzCompare(
+        bnuzptr_t pIn1,
+        bnuzptr_t pIn2
+    )
+
+    Arg:
+    - pIn1: target (bnuz_t) object 1 pointer
+    - pIn2: target (bnuz_t) object 2 pointer
+
+    Do:
+    - Compare (pIn1) and (pIn2),
+    return 0 if same,
+    return 1 if (pIn1) > (pIn2),
+    return -1 if (pIn1) < (pIn2)  
+
+    Return:
+    - (int32_t) value: -1 OR 0 OR 1
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pIn1) || (!pIn2)){
+        // exception: pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+
+
+    for(uint32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
+        if(*((pIn1->pData) + i) > *((pIn2->pData) + i)){
+            return 1;
+        }else if(*((pIn1->pData) + i) < *((pIn2->pData) + i)){
+            return -1;
+        }
+    }
+    // else:
+
+    // return:
+    return 0;
+}
+
+MARS_API_EXPORT int32_t BnuzAdd(
+    bnuzptr_t pOut,
+    bnuzptr_t pIn1,
+    bnuzptr_t pIn2
+)
+{
+    /*
+    int32_t BnuzAdd(
+        bnuzptr_t pOut,
+        bnuzptr_t pIn1,
+        bnuzptr_t pIn2
+    )
+
+    Arg:
+    - pOut: target (bnuz_t) object output pointer
+    - pIn1: target (bnuz_t) object input 1 pointer
+    - pIn2: target (bnuz_t) object input 2 pointer
+
+    Do:
+    - Do (pOut) = (pIn1) + (pIn2),
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pOut) || (!pIn1) || (!pIn2)){
+        // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+    bnuword_t s = 0; // sum
+    bnuword_t c = 0; // carry
+    uint32_t estimatedWords = 0;
+
+
+    estimatedWords = MAX((pIn1->allocated), (pIn2->allocated));
+
+
+    pOut->pData = realloc((void *)(pOut->pData), ((PARM_SIZE_WORD >> 3) * estimatedWords)); // reallocate words
+    pOut->allocated = estimatedWords;
+    pOut->used = MAX((pIn1->used), (pIn2->used));
+    memset((pOut->pData), 0, ((PARM_SIZE_WORD >> 3) * estimatedWords)); // clear to zero
+
+    for(uint32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
+        s = 0;
+        s = *((pIn1->pData) + i) + *((pIn2->pData) + i) + c;
+        if((s <= (*((pIn1->pData) + i))) && (s <= (*((pIn2->pData) + i)))){
+            // overflow detected:
+            c = 1;
+        }else{
+            c = 0;
+        }
+        (*((pOut->pData) + i)) = s;
+    }
+
+    bnuzptr_t t = NULL;
+    if((pIn1->allocated) > (pIn2->allocated)){
+        t = pIn1;
+    }else if((pIn1->allocated) < (pIn2->allocated)){
+        t = pIn2;
+    }
+    if(t){
+        for(uint32_t i=0; i<((MAX(pIn1->allocated, pIn2->allocated)) - (MIN(pIn1->allocated, pIn2->allocated))); i++){
+            (*((pOut->pData) + i + (MIN(pIn1->allocated, pIn2->allocated)))) = (*((t->pData) + i + (MIN(pIn1->allocated, pIn2->allocated))));
+        }
+    }
+
+    // if last carry was 1:
+    if((c == 1) && ((MAX((pIn1->used), (pIn2->used))) == ((PARM_SIZE_WORD >> 3) * estimatedWords))){
+        pOut->pData = realloc((void *)(pOut->pData), ((PARM_SIZE_WORD >> 3) * estimatedWords + 1)); // reallocate words
+        pOut->allocated = estimatedWords + 1;
+        pOut->used = MAX((pIn1->used), (pIn2->used)) + 1;
+        memset(((pOut->pData) + ((PARM_SIZE_WORD >> 3) * estimatedWords)), 0, sizeof(bnuword_t)); // clear to zero
+        (*((pOut->pData) + estimatedWords)) = 1;
+    }
+
+    // return:
+    return c;
 }
 // end code
