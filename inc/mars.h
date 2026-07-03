@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.06.30
+last modified: 2026.07.03
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -21,7 +21,7 @@ version: 0.0.1
 
 
 // constant:
-#define CONST_SIZE_DEFAULT_BNUZ_WORDS 1 // default value of number of words used when allocate pData in BnuzInit()
+#define CONST_SIZE_DEFAULT_BNZ_WORDS 1 // default value of number of words used when allocate pData in BnzInit()
 
 
 // parameter:
@@ -30,13 +30,13 @@ version: 0.0.1
 
 // configure with the parameter:
 #if(PARM_SIZE_WORD == 64)
-typedef uint64_t bnuword_t;
+typedef uint64_t bnword_t;
 #elif(PARM_SIZE_WORD == 32)
-typedef uint32_t bnuword_t;
+typedef uint32_t bnword_t;
 #elif(PARM_SIZE_WORD == 16)
-typedef uint16_t bnuword_t;
+typedef uint16_t bnword_t;
 #elif(PARM_SIZE_WORD == 8)
-typedef uint8_t bnuword_t;
+typedef uint8_t bnword_t;
 #endif
 
 
@@ -51,29 +51,30 @@ typedef uint8_t bnuword_t;
 
 
 // datatype:
-typedef struct __bnuz_t{
+typedef struct __bnz_t{
     // unsigned integer type
-    bnuword_t * pData; //
-    uint32_t allocated; // number of bnuword_t in pData
-    uint32_t used; // ceil(log8((the raw number) | 1)), "size in bytes"
-}_bnuz_t;
-typedef _bnuz_t bnuz_t[1];
-typedef _bnuz_t * bnuzptr_t;
+    bnword_t * pData; //
+    int32_t allocated; // (number of bnword_t in pData)
+    int32_t used; // (ceil(log8((the raw number) | 1)) * sign), or ("size in bytes" * sign), sign will be 1(positive) or -1(negative)
+}_bnz_t;
+typedef _bnz_t bnz_t[1];
+typedef _bnz_t * bnzptr_t;
 
 
 // function prototype:
 // Bnh: utility function:
-MARS_API_EXPORT uint32_t BnhGetDigitsInBytes_LE(uint8_t * pBaIn, uint32_t lenBaIn);
-MARS_API_EXPORT uint32_t BnhGetDigitsInBytes_BE(uint8_t * pBaIn, uint32_t lenBaIn);
+MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(uint8_t * pBaIn, int32_t lenBaIn);
 
 
-// Bnuz: unsigned integer related function:
-MARS_API_EXPORT void BnuzInit(bnuzptr_t pIn);
-MARS_API_EXPORT void BnuzFinal(bnuzptr_t pIn);
-MARS_API_EXPORT void BnuzBa2Bn(bnuzptr_t pOut, uint8_t * pBaIn, uint32_t lenBaIn);
-MARS_API_EXPORT void BnuzBn2Ba(uint8_t * pBaOut, uint32_t lenBaOut, bnuzptr_t pIn);
-MARS_API_EXPORT int32_t BnuzCompare(bnuzptr_t pIn1, bnuzptr_t pIn2);
-MARS_API_EXPORT int32_t BnuzAdd(bnuzptr_t pOut, bnuzptr_t pIn1, bnuzptr_t pIn2);
+// Bnz: unsigned integer related function:
+MARS_API_EXPORT void BnzInit(bnzptr_t pIn);
+MARS_API_EXPORT void BnzFinal(bnzptr_t pIn);
+MARS_API_EXPORT void BnzBa2Bn(bnzptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT void BnzBn2Ba(uint8_t * pBaOut, int32_t lenBaOut, bnzptr_t pIn);
+MARS_API_EXPORT int32_t BnzCompare(bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzAdd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzSub(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 
 #endif
 // end code

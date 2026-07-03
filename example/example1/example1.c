@@ -108,18 +108,18 @@ void Test1(void){
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
     //
-    bnuz_t bn_a;
-    bnuz_t bn_b;
-    bnuz_t bn_c;
+    bnz_t bn_a;
+    bnz_t bn_b;
+    bnz_t bn_c;
 
     // init:
-    BnuzInit(bn_a); // init bn_a
-    BnuzInit(bn_b); // init bn_b
-    BnuzInit(bn_c); // init bn_c
+    BnzInit(bn_a); // init bn_a
+    BnzInit(bn_b); // init bn_b
+    BnzInit(bn_c); // init bn_c
 
     // bytes -> big number:
-    BnuzBa2Bn(bn_a, a, 256); // bn_a = a
-    BnuzBa2Bn(bn_b, b, 256); // bn_b = b
+    BnzBa2Bn(bn_a, a, 256); // bn_a = a
+    BnzBa2Bn(bn_b, b, 256); // bn_b = b
 
     // test:
     printf("a is %u bytes number.\n", BnhGetDigitsInBytes_BE(a, 256));
@@ -129,12 +129,12 @@ void Test1(void){
     printf("bn_b[%u:%u] =\n", bn_b->used, ((bn_b->allocated) * 8)); TestPrintHex((uint8_t *)(bn_b->pData), bn_b->used); printf("\n");
 
     // operation:
-    //BnuzBn2Ba(c, 256, bn_a); // c = bn_a
-    BnuzAdd(bn_c, bn_a, bn_b);
+    //BnzBn2Ba(c, 256, bn_a); // c = bn_a
+    BnzAdd(bn_c, bn_a, bn_b);
     printf("bn_c[%u:%u] =\n", bn_c->used, ((bn_c->allocated) * 8)); TestPrintHex((uint8_t *)(bn_c->pData), bn_c->used); printf("\n");
 
     // big number -> bytes:
-    BnuzBn2Ba(c, 256, bn_c); // c = bn_c
+    BnzBn2Ba(c, 256, bn_c); // c = bn_c
     
 
     // print result:
@@ -143,9 +143,9 @@ void Test1(void){
     printf("c[256] =\n"); TestPrintHex(c, 256); printf("\n");
 
     // final:
-    BnuzFinal(bn_a); // final bn_a
-    BnuzFinal(bn_b); // final bn_b
-    BnuzFinal(bn_c); // final bn_c
+    BnzFinal(bn_a); // final bn_a
+    BnzFinal(bn_b); // final bn_b
+    BnzFinal(bn_c); // final bn_c
     return;
 }
 

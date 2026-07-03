@@ -44,17 +44,17 @@ void Test2(uint32_t n){
     uint8_t b[MAX_N_BYTES] = {0, };
     uint8_t c1[MAX_N_BYTES] = {0, };
     uint8_t c2[MAX_N_BYTES] = {0, };
-    bnuz_t bn_a;
-    bnuz_t bn_b;
-    bnuz_t bn_c;
+    bnz_t bn_a;
+    bnz_t bn_b;
+    bnz_t bn_c;
     mpz_t gn_a;
     mpz_t gn_b;
     mpz_t gn_c;
 
     // init:
-    BnuzInit(bn_a);
-    BnuzInit(bn_b);
-    BnuzInit(bn_c);
+    BnzInit(bn_a);
+    BnzInit(bn_b);
+    BnzInit(bn_c);
     mpz_init(gn_a);
     mpz_init(gn_b);
     mpz_init(gn_c);
@@ -80,10 +80,10 @@ void Test2(uint32_t n){
 
         // calculate with M.A.R.S.
         // operation:
-        BnuzBa2Bn(bn_a, a, MAX_N_BYTES); // bn_a = a
-        BnuzBa2Bn(bn_b, b, MAX_N_BYTES); // bn_b = b
-        BnuzAdd(bn_c, bn_a, bn_b); // bn_c = bn_a + bn_b
-        BnuzBn2Ba(c1, MAX_N_BYTES, bn_c); // c = bn_c
+        BnzBa2Bn(bn_a, a, MAX_N_BYTES); // bn_a = a
+        BnzBa2Bn(bn_b, b, MAX_N_BYTES); // bn_b = b
+        BnzAdd(bn_c, bn_a, bn_b); // bn_c = bn_a + bn_b
+        BnzBn2Ba(c1, MAX_N_BYTES, bn_c); // c = bn_c
         
         // calculate with GNU GMP
         uint32_t c2_siz = 0;
@@ -122,9 +122,9 @@ void Test2(uint32_t n){
     printf("error rate  = %.4lf\n", (((double)errCnt) / n));
 
     // final:
-    BnuzFinal(bn_a);
-    BnuzFinal(bn_b);
-    BnuzFinal(bn_c);
+    BnzFinal(bn_a);
+    BnzFinal(bn_b);
+    BnzFinal(bn_c);
     mpz_clear(gn_a);
     mpz_clear(gn_b);
     mpz_clear(gn_c);
