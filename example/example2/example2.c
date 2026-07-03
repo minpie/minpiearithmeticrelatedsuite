@@ -1,0 +1,140 @@
+/*
+example2.c
+
+created: 2026.06.30
+last modified: 2026.07.03
+author: minpie
+last modify: minpie
+version: 0.0.1
+
+*/
+// start code:
+// include:
+#include <stdio.h>
+#include <stdint.h>
+#include <time.h>
+#include <stdlib.h>
+#include <gmp.h>
+#include "mars.h"
+
+// define:
+#define MAX_N_BYTES 256
+
+// function:
+void TestPrintHex(uint8_t * pData, uint32_t len){
+    for(uint32_t i=0; i<len; i++){
+        if(i && (!(i % 8))){
+            printf(" ");
+        }
+        printf("%02x", pData[i]);
+    }
+    return;
+}
+
+void GetRandom(uint8_t *pOut, uint32_t nOfBytes){
+    for(uint32_t i=0; i<nOfBytes; i++){
+        *(pOut + i) = (uint8_t)(rand() & 0xff);
+    }
+    return;
+}
+
+void Test2(uint32_t n){
+    int errCnt = 0;
+    uint8_t a[MAX_N_BYTES] = {0, };
+    uint8_t b[MAX_N_BYTES] = {0, };
+    uint8_t c1[MAX_N_BYTES] = {0, };
+    uint8_t c2[MAX_N_BYTES] = {0, };
+    bnuz_t bn_a;
+    bnuz_t bn_b;
+    bnuz_t bn_c;
+    mpz_t gn_a;
+    mpz_t gn_b;
+    mpz_t gn_c;
+
+    // init:
+    BnuzInit(bn_a);
+    BnuzInit(bn_b);
+    BnuzInit(bn_c);
+    mpz_init(gn_a);
+    mpz_init(gn_b);
+    mpz_init(gn_c);
+
+    for(uint32_t i=0; i<n; i++){
+        // reset:
+        memset(a, 0, MAX_N_BYTES);
+        memset(b, 0, MAX_N_BYTES);
+        memset(c1, 0, MAX_N_BYTES);
+        memset(c2, 0, MAX_N_BYTES);
+
+        // get digits:
+        uint64_t siz_a = 0;
+        uint64_t siz_b = 0;
+        siz_a = (rand() % MAX_N_BYTES);
+        siz_b = (rand() % MAX_N_BYTES);
+
+        // get (a, b):
+        GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
+        GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
+        //GetRandom((a + 1), (MAX_N_BYTES - 1));
+        //GetRandom((b + 1), (MAX_N_BYTES - 1));
+
+        // calculate with M.A.R.S.
+        // operation:
+        BnuzBa2Bn(bn_a, a, MAX_N_BYTES); // bn_a = a
+        BnuzBa2Bn(bn_b, b, MAX_N_BYTES); // bn_b = b
+        BnuzAdd(bn_c, bn_a, bn_b); // bn_c = bn_a + bn_b
+        BnuzBn2Ba(c1, MAX_N_BYTES, bn_c); // c = bn_c
+        
+        // calculate with GNU GMP
+        uint32_t c2_siz = 0;
+        // operation:
+        mpz_import(gn_a, MAX_N_BYTES, 1, 1, 1, 0, a); // gn_a = a
+        mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
+        mpz_add(gn_c, gn_a, gn_b); // gn_c = gn_a + gn_b
+        c2_siz = mpz_sizeinbase(gn_c, 256);
+        mpz_export((c2 + (MAX_N_BYTES - c2_siz)), &c2_siz, 1, 1, 1, 0, gn_c); // c2 = gn_c
+
+        // compare:
+        if(memcmp(c1, c2, MAX_N_BYTES)){
+            // found mismatch:
+            errCnt++;
+            ///*
+            // print error case:
+            printf("a  = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
+            //gmp_printf("a2 = %Zx\n", gn_a);
+            printf("\n");
+
+            printf("b  = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
+            //gmp_printf("b2 = %Zx\n", gn_b);
+            printf("\n");
+
+            printf("c1 = "); TestPrintHex(c1, MAX_N_BYTES); printf("\n");
+            printf("c2 = "); TestPrintHex(c2, MAX_N_BYTES); printf("\n");
+            //gmp_printf("c2 = %Zx\n", gn_c);
+            printf("\n");
+            //*/
+            //
+        }
+    }
+    // print result:
+    printf("total n     = %u\n", n);
+    printf("total error = %d\n", errCnt);
+    printf("error rate  = %.4lf\n", (((double)errCnt) / n));
+
+    // final:
+    BnuzFinal(bn_a);
+    BnuzFinal(bn_b);
+    BnuzFinal(bn_c);
+    mpz_clear(gn_a);
+    mpz_clear(gn_b);
+    mpz_clear(gn_c);
+    return;
+}
+
+// main():
+int main(void){
+    srand(time(NULL));
+    Test2(10000000);
+    return 0;
+}
+// end code
