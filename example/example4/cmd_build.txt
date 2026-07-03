@@ -1,0 +1,8 @@
+#
+gcc \
+-I inc \
+-L lib \
+-l mars \
+-lm \
+-o example/example4/example4 \
+example/example4/example4.c

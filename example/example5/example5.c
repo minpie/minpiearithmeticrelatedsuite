@@ -1,5 +1,5 @@
 /*
-example3.c
+example5.c
 
 created: 2026.07.03
 last modified: 2026.07.03
@@ -71,7 +71,7 @@ void Test3(uint64_t n){
             // operation:
             BnzBa2Bn(bn_a, a, MAX_N_BYTES, 1); // bn_a = a
             BnzBa2Bn(bn_b, b, MAX_N_BYTES, 1); // bn_b = b
-            BnzAdd(bn_c, bn_a, bn_b); // bn_c = bn_a + bn_b
+            BnzSub(bn_c, bn_a, bn_b); // bn_c = bn_a - bn_b
             BnzBn2Ba(c1, MAX_N_BYTES, bn_c); // c = bn_c
             
             // calculate with GNU GMP
@@ -79,7 +79,7 @@ void Test3(uint64_t n){
             // operation:
             mpz_import(gn_a, MAX_N_BYTES, 1, 1, 1, 0, a); // gn_a = a
             mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
-            mpz_add(gn_c, gn_a, gn_b); // gn_c = gn_a + gn_b
+            mpz_sub(gn_c, gn_a, gn_b); // gn_c = gn_a - gn_b
             c2_siz = mpz_sizeinbase(gn_c, 256);
             mpz_export((c2 + (MAX_N_BYTES - c2_siz)), &c2_siz, 1, 1, 1, 0, gn_c); // c2 = gn_c
 

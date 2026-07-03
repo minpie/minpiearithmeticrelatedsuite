@@ -80,8 +80,8 @@ void Test2(uint32_t n){
 
         // calculate with M.A.R.S.
         // operation:
-        BnzBa2Bn(bn_a, a, MAX_N_BYTES); // bn_a = a
-        BnzBa2Bn(bn_b, b, MAX_N_BYTES); // bn_b = b
+        BnzBa2Bn(bn_a, a, MAX_N_BYTES, 1); // bn_a = a
+        BnzBa2Bn(bn_b, b, MAX_N_BYTES, 1); // bn_b = b
         BnzAdd(bn_c, bn_a, bn_b); // bn_c = bn_a + bn_b
         BnzBn2Ba(c1, MAX_N_BYTES, bn_c); // c = bn_c
         

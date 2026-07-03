@@ -1,7 +1,7 @@
 /*
-example1.c
+example4.c
 
-created: 2026.02.16
+created: 2026.07.03
 last modified: 2026.07.03
 author: minpie
 last modify: minpie
@@ -15,8 +15,8 @@ version: 0.0.1
 #include "mars.h"
 
 // function:
-void TestPrintHex(uint8_t * pData, uint32_t len){
-    for(uint32_t i=0; i<len; i++){
+void TestPrintHex(uint8_t * pData, int32_t len){
+    for(uint32_t i=0; i<ABS(len); i++){
         if(i && (!(i % 4))){
             printf(" ");
         }
@@ -123,24 +123,25 @@ void Test1(void){
 
     // test:
     printf("a is %u bytes number.\n", BnhGetDigitsInBytes_BE(a, 256));
-    printf("bn_a[%u:%u] =\n", bn_a->used, ((bn_a->allocated) * 8)); TestPrintHex((uint8_t *)(bn_a->pData), bn_a->used); printf("\n");
+    printf("bn_a[%u:%u] = ", ABS(bn_a->used), ((bn_a->allocated) * 8)); TestPrintHex((uint8_t *)(bn_a->pData), bn_a->used); printf("\n");
 
     printf("b is %u bytes number.\n", BnhGetDigitsInBytes_BE(b, 256));
-    printf("bn_b[%u:%u] =\n", bn_b->used, ((bn_b->allocated) * 8)); TestPrintHex((uint8_t *)(bn_b->pData), bn_b->used); printf("\n");
+    printf("bn_b[%u:%u] = ", ABS(bn_b->used), ((bn_b->allocated) * 8)); TestPrintHex((uint8_t *)(bn_b->pData), bn_b->used); printf("\n");
 
+    
     // operation:
     //BnzBn2Ba(c, 256, bn_a); // c = bn_a
-    BnzAdd(bn_c, bn_a, bn_b);
-    printf("bn_c[%u:%u] =\n", bn_c->used, ((bn_c->allocated) * 8)); TestPrintHex((uint8_t *)(bn_c->pData), bn_c->used); printf("\n");
-
+    //BnzSub(bn_c, bn_a, bn_b);
+    BnzSub(bn_c, bn_b, bn_a);
+    printf("bn_c[%u:%u] = ", ABS(bn_c->used), ((bn_c->allocated) * 8)); TestPrintHex((uint8_t *)(bn_c->pData), bn_c->used); printf("\n");
     // big number -> bytes:
-    BnzBn2Ba(c, 256, bn_c); // c = bn_c
+    int32_t resultSign = BnzBn2Ba(c, 256, bn_c); // c = bn_c
     
 
     // print result:
-    printf("a[256] =\n"); TestPrintHex(a, 256); printf("\n");
-    printf("b[256] =\n"); TestPrintHex(b, 256); printf("\n");
-    printf("c[256] =\n"); TestPrintHex(c, 256); printf("\n");
+    printf("a[256] = "); TestPrintHex(a, 256); printf("\n");
+    printf("b[256] = "); TestPrintHex(b, 256); printf("\n");
+    printf("c[256] = %s", ((resultSign == -1) ? "-" : "")); TestPrintHex(c, 256); printf("\n");
 
     // final:
     BnzFinal(bn_a); // final bn_a
