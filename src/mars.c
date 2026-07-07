@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.07.03
+last modified: 2026.07.07
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -15,6 +15,165 @@ version: 0.0.1
 
 // function:
 // Bnh: utility function:
+MARS_API_EXPORT void BnhMemcpy(
+    void * pOut,
+    void * pIn,
+    int32_t len
+)
+{
+    /*
+    void BnhMemcpy(
+        void * pOut,
+        void * pIn,
+        int32_t len
+    );
+
+    Arg:
+    - pOut: destination (void *) pointer
+    - pIn: source (void *) pointer
+    - len: length to copy in bytes
+
+    Do:
+    - copy (len) bytes to (pOut) from (pIn).
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+
+    //
+    if((!pOut) || (!pIn) || (!len)){
+        // exception: pOut is NULL OR pIn is NULL OR len is 0
+        return;
+    }
+    // else:
+    memmove(pOut, pIn, (size_t)len); // copy
+
+    // return:
+    return;
+}
+
+MARS_API_EXPORT void BnhMemset(
+    void * pOut,
+    uint8_t val,
+    int32_t len
+)
+{
+    /*
+    void BnhMemset(
+        void * pOut,
+        uint8_t val,
+        int32_t len
+    );
+
+    Arg:
+    - pOut: destination (void *) pointer
+    - val: (uint8_t) value to copy
+    - len: length to copy in bytes
+
+    Do:
+    - copy (len) of (val) to (pOut).
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pOut) || (!len)){
+        // exception: pOut is NULL OR len is 0
+        return;
+    }
+    // else:
+    memset(pOut, val, (size_t)len); // fill
+
+    // return:
+    return;
+}
+
+MARS_API_EXPORT int32_t BnhMemcmp(
+    void * pIn1,
+    void * pIn2,
+    int32_t len
+)
+{
+    /*
+    void BnhMemcmp(
+        void * pIn1,
+        void * pIn2,
+        int32_t len
+    );
+
+    Arg:
+    - pIn1: source (void *) pointer 1
+    - pIn2: source (void *) pointer 2
+    - len: length to compare in bytes
+
+    Do:
+    - compare (len) bytes from (pIn1) and (pIn2).
+    - if all bytes in (pIn1) and (pIn2) are same, return 0
+    - else if pIn1[n] > pIn2[n], return 1
+    - else if pIn1[n] < pIn2[n], return -1
+
+    Return:
+    - 0 or 1 or -1
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pIn1) || (!pIn2) || (!len)){
+        // exception: pIn1 is NULL OR pIn2 is NULL OR len is 0
+        return 0;
+    }
+    // else:
+    int32_t result = 0;
+    result = memcmp(pIn1, pIn2, (size_t)len); // compare
+
+    // return:
+    return result;
+}
+
+MARS_API_EXPORT void BnhZeroize(
+    void * pOut,
+    int32_t len
+)
+{
+    /*
+    void BnhZeroize(
+        void * pOut,
+        int32_t len
+    );
+
+    Arg:
+    - pOut: destination (void *) pointer
+    - len: length to copy in bytes
+
+    Do:
+    - set 0 to (len) bytes of (pOut).
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pOut) || (!len)){
+        // exception: pOut is NULL OR len is 0
+        return;
+    }
+    // else:
+    memset(pOut, 0, (size_t)len); // zeroize
+
+    // return:
+    return;
+}
+
 MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(
     uint8_t * pBaIn,
     int32_t lenBaIn
@@ -137,7 +296,8 @@ MARS_API_EXPORT void BnzInit(
         return;
     }
     // else:
-    memset((pIn->pData), 0, (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t)));
+    BnhZeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t))); // reset to 0
+    //memset((pIn->pData), 0, (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t)));
     pIn->allocated = CONST_SIZE_DEFAULT_BNZ_WORDS;
     pIn->used = 0;
     
@@ -175,6 +335,7 @@ MARS_API_EXPORT void BnzFinal(
     // else:
     if(pIn->pData){
         // pIn->pData != NULL:
+        BnhZeroize((void *)(pIn->pData), ((pIn->allocated) * sizeof(bnword_t))); // reset to 0
         free(pIn->pData);
     }
     pIn->pData = NULL;
@@ -229,7 +390,8 @@ MARS_API_EXPORT void BnzBa2Bn(
     pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reallocate words
     pOut->allocated = neededWords;
     pOut->used = sign * (digitsInBytes);
-    memset((pOut->pData), 0, (sizeof(bnword_t) * neededWords));
+    BnhZeroize((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reset to 0
+    // memset((pOut->pData), 0, (sizeof(bnword_t) * neededWords));
     
     if(!(pOut->pData)){
         // exception: failed to realloc()
@@ -370,7 +532,8 @@ MARS_API_EXPORT void BnzAssign(
     }
     // else:
     pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * (pIn->allocated)));
-    memcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
+    BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
+    //memcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
     pOut->allocated = pIn->allocated;
     pOut->used = pIn->used;
 
@@ -434,7 +597,8 @@ MARS_API_EXPORT int32_t BnzAdd(
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
         t1->used = MAX(ABS(pIn1->used), ABS(pIn2->used));
-        memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
+        //memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
+        BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
         
         // s = a + b + c_in
         // ( (s < a) || (c_in && (s == a)) ) then overflow
@@ -566,7 +730,8 @@ MARS_API_EXPORT int32_t BnzSub(
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
         t1->used = MAX(ABS(tBig->used), ABS(tSmall->used));
-        memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
+        //memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
+        BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
 
         
         // s = a - b - c_in

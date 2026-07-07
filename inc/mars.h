@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.07.03
+last modified: 2026.07.07
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -64,6 +64,10 @@ typedef _bnz_t * bnzptr_t;
 
 // function prototype:
 // Bnh: utility function:
+MARS_API_EXPORT void BnhMemcpy(void * pOut, void * pIn, int32_t len);
+MARS_API_EXPORT void BnhMemset(void * pOut, uint8_t val, int32_t len);
+MARS_API_EXPORT int32_t BnhMemcmp(void * pIn1, void * pIn2, int32_t len);
+MARS_API_EXPORT void BnhZeroize(void * pIn, int32_t len);
 MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(uint8_t * pBaIn, int32_t lenBaIn);
 MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(uint8_t * pBaIn, int32_t lenBaIn);
 

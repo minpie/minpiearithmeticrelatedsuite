@@ -81,7 +81,7 @@ void Test3(uint64_t n){
             mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
             mpz_add(gn_c, gn_a, gn_b); // gn_c = gn_a + gn_b
             c2_siz = mpz_sizeinbase(gn_c, 256);
-            mpz_export((c2 + (MAX_N_BYTES - c2_siz)), &c2_siz, 1, 1, 1, 0, gn_c); // c2 = gn_c
+            mpz_export((c2 + (MAX_N_BYTES - c2_siz)), NULL, 1, 1, 1, 0, gn_c); // c2 = gn_c
 
             // compare:
             if(memcmp(c1, c2, MAX_N_BYTES)){
