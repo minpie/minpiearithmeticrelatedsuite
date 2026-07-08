@@ -482,15 +482,19 @@ MARS_API_EXPORT int32_t BnzCompare(
         return 0;
     }
     // else:
-
-    for(int32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
-        if(*((pIn1->pData) + i) > *((pIn2->pData) + i)){
+    if((pIn1->allocated) > (pIn2->allocated)){
+        return 1;
+    }else if((pIn1->allocated) < (pIn2->allocated)){
+        return -1;
+    }
+    // else:
+    for(int32_t i=0; i<(pIn1->allocated); i++){
+        if(*((pIn1->pData) + (pIn1->allocated) - 1 - i) > *((pIn2->pData) + (pIn1->allocated) - 1 - i)){
             return 1;
-        }else if(*((pIn1->pData) + i) < *((pIn2->pData) + i)){
+        }else if(*((pIn1->pData) + (pIn1->allocated) - 1 - i) < *((pIn2->pData) + (pIn1->allocated) - 1 - i)){
             return -1;
         }
     }
-    // else:
 
     // return:
     return 0;
@@ -703,7 +707,6 @@ MARS_API_EXPORT int32_t BnzSub(
     bnword_t b = 0; // borrow
     int32_t estimatedWords = 0;
     bnz_t t1;
-    bnzptr_t t2 = NULL;
     int32_t tempIdx = 0;
 
 
@@ -756,23 +759,16 @@ MARS_API_EXPORT int32_t BnzSub(
         }
 
         // add rest of bigger one:
-        if((tBig->allocated) > (tSmall->allocated)){
-            t2 = tBig;
-        }else if((tBig->allocated) < (tSmall->allocated)){
-            t2 = tSmall;
-        }
-        if(t2){
-            for(int32_t i=0; i<((MAX(tBig->allocated, tSmall->allocated)) - (MIN(tBig->allocated, tSmall->allocated))); i++){
-                tempIdx = i + (MIN(tBig->allocated, tSmall->allocated));
-                s = *((t2->pData) + tempIdx) - b;
-                if((s > *((t2->pData) + tempIdx)) || (b && (s == *((t2->pData) + tempIdx)))){
-                    // underflow detected:
-                    b = 1;
-                }else{
-                    b = 0;
-                }
-                *((t1->pData) + tempIdx) = s;
+        for(int32_t i=0; i<((MAX(tBig->allocated, tSmall->allocated)) - (MIN(tBig->allocated, tSmall->allocated))); i++){
+            tempIdx = i + (MIN(tBig->allocated, tSmall->allocated));
+            s = *((tBig->pData) + tempIdx) - b;
+            if((s > *((tBig->pData) + tempIdx)) || (b && (s == *((tBig->pData) + tempIdx)))){
+                // underflow detected:
+                b = 1;
+            }else{
+                b = 0;
             }
+            *((t1->pData) + tempIdx) = s;
         }
         t1->used = BnhGetDigitsInBytes_LE((uint8_t *)(t1->pData), (sizeof(bnword_t) * t1->allocated));
 
