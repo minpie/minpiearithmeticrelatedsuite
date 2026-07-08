@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.07.07
+last modified: 2026.07.08
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -79,6 +79,7 @@ MARS_API_EXPORT void BnzBa2Bn(bnzptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn, i
 MARS_API_EXPORT int32_t BnzBn2Ba(uint8_t * pBaOut, int32_t lenBaOut, bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzCompare(bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT void BnzAssign(bnzptr_t pOut, bnzptr_t pIn);
+MARS_API_EXPORT int32_t BnzSgn(bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzAdd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT int32_t BnzSub(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 

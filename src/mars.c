@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.07.07
+last modified: 2026.07.08
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -503,7 +503,8 @@ MARS_API_EXPORT int32_t BnzCompare(
 MARS_API_EXPORT void BnzAssign(
     bnzptr_t pOut,
     bnzptr_t pIn
-){
+)
+{
     /*
     void BnzAssign(
         bnzptr_t pOut,
@@ -543,6 +544,42 @@ MARS_API_EXPORT void BnzAssign(
 
     // return:
     return;
+}
+
+MARS_API_EXPORT int32_t BnzSgn(
+    bnzptr_t pIn
+)
+{
+    /*
+    int32_t BnzSgn(
+        bnzptr_t pIn
+    )
+
+    Arg:
+    - pIn: target (bnz_t) object pointer
+
+    Do:
+    - Check sign of (pIn)
+    return 1 if (pIn) >= 0
+    return -1 if (pIn) < 0
+
+    Return:
+    - (int32_t) value: -1 OR 1
+
+    Other info:
+    - nope
+    */
+    //
+    if(!pIn){
+        // exception: pIn is NULL
+        return 0;
+    }
+    // else:
+    int32_t result = 0;
+    result = (((pIn->used) < 0) ? -1 : 1);
+
+    // return:
+    return result;
 }
 
 MARS_API_EXPORT int32_t BnzAdd(
@@ -585,7 +622,7 @@ MARS_API_EXPORT int32_t BnzAdd(
     bnzptr_t t2 = NULL;
     int32_t tempIdx = 0;
     int32_t resultSign = 0;
-    if(((pIn1->used) < 0) == ((pIn2->used) < 0)){
+    if(BnzSgn(pIn1) == BnzSgn(pIn2)){
         // case 1. pIn1.sign == pIn2.sign: 그대로 더하기
         if((pIn1->used) < 0){
             // 음수 + 음수:
@@ -712,7 +749,7 @@ MARS_API_EXPORT int32_t BnzSub(
 
     bnz_t tBig;
     bnz_t tSmall;
-    if(((pIn1->used) < 0) == ((pIn2->used) < 0)){
+    if(BnzSgn(pIn1) == BnzSgn(pIn2)){
         // case1. pIn1.sign == pIn2.sign: 뺄셈 수행
         BnzInit(tBig);
         BnzInit(tSmall);
@@ -799,7 +836,7 @@ MARS_API_EXPORT int32_t BnzSub(
         // case 2. pIn1.sign != pIn2.sign: 덧셈 수행
         BnzInit(t1);
 
-        if(((pIn1->used) < 0) < ((pIn2->used) < 0)){
+        if(BnzSgn(pIn1) < BnzSgn(pIn1)){
             // pIn1: 양수 -> pIn2를 양수로 바꾸어 덧셈:
             BnzAssign(t1, pIn2);
             t1->used = (-1) * (t1->used);
@@ -815,4 +852,5 @@ MARS_API_EXPORT int32_t BnzSub(
     // return:
     return b;
 }
+
 // end code
