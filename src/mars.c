@@ -13,7 +13,7 @@ version: 0.0.1
 #include "mars.h"
 
 // global variable:
-const bnword_t _bnword_zero[CONST_SIZE_DEFAULT_BNZ_WORDS] = {0, }; //temp
+const bnword_t _bnword_zero[CONST_SIZE_DEFAULT_BNZ_WORDS] = {0, };
 const bnword_t _bnword_one[CONST_SIZE_DEFAULT_BNZ_WORDS] = {1, };
 const bnz_t bn_zero = {
     // pData:
