@@ -22,7 +22,7 @@ const bnz_t bn_zero = {
     CONST_SIZE_DEFAULT_BNZ_WORDS,
     // used:
     0
-};
+}; // constant for 0
 const bnz_t bn_one = {
     // pData:
     _bnword_one,
@@ -30,7 +30,7 @@ const bnz_t bn_one = {
     CONST_SIZE_DEFAULT_BNZ_WORDS,
     // used:
     1
-};
+}; // constant for 1
 
 
 // function:
