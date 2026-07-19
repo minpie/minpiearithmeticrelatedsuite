@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.07.08
+last modified: 2026.07.19
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -11,6 +11,26 @@ version: 0.0.1
 // start code:
 // include:
 #include "mars.h"
+
+// global variable:
+const bnword_t _bnword_zero[CONST_SIZE_DEFAULT_BNZ_WORDS] = {0, };
+const bnword_t _bnword_one[CONST_SIZE_DEFAULT_BNZ_WORDS] = {1, };
+const bnz_t bn_zero = {
+    // pData:
+    _bnword_zero,
+    // allocated:
+    CONST_SIZE_DEFAULT_BNZ_WORDS,
+    // used:
+    0
+};
+const bnz_t bn_one = {
+    // pData:
+    _bnword_one,
+    // allocated:
+    CONST_SIZE_DEFAULT_BNZ_WORDS,
+    // used:
+    1
+};
 
 
 // function:
@@ -297,7 +317,6 @@ MARS_API_EXPORT void BnzInit(
     }
     // else:
     BnhZeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t))); // reset to 0
-    //memset((pIn->pData), 0, (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t)));
     pIn->allocated = CONST_SIZE_DEFAULT_BNZ_WORDS;
     pIn->used = 0;
     
@@ -391,7 +410,6 @@ MARS_API_EXPORT void BnzBa2Bn(
     pOut->allocated = neededWords;
     pOut->used = sign * (digitsInBytes);
     BnhZeroize((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reset to 0
-    // memset((pOut->pData), 0, (sizeof(bnword_t) * neededWords));
     
     if(!(pOut->pData)){
         // exception: failed to realloc()
@@ -443,7 +461,7 @@ MARS_API_EXPORT int32_t BnzBn2Ba(
     for(int32_t i=0; ((i<lenBaOut) && (i<ABS(pIn->used))); i++){
         *(pBaOut + lenBaOut - 1 - i) = *(((uint8_t *)(pIn->pData)) + i);
     }
-    sign = (((pIn->used) < 0) ? -1 : 1);
+    sign = (((pIn->used) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
 
     // return:
     return sign; 
@@ -538,7 +556,6 @@ MARS_API_EXPORT void BnzAssign(
     // else:
     pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * (pIn->allocated)));
     BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
-    //memcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
     pOut->allocated = pIn->allocated;
     pOut->used = pIn->used;
 
@@ -576,7 +593,7 @@ MARS_API_EXPORT int32_t BnzSgn(
     }
     // else:
     int32_t result = 0;
-    result = (((pIn->used) < 0) ? -1 : 1);
+    result = (((pIn->used) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
 
     // return:
     return result;
@@ -638,7 +655,6 @@ MARS_API_EXPORT int32_t BnzAdd(
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
         t1->used = MAX(ABS(pIn1->used), ABS(pIn2->used));
-        //memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
         BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
         
         // s = a + b + c_in
@@ -770,7 +786,6 @@ MARS_API_EXPORT int32_t BnzSub(
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
         t1->used = MAX(ABS(tBig->used), ABS(tSmall->used));
-        //memset((t1->pData), 0, (sizeof(bnword_t) * estimatedWords)); // clear to zero
         BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
 
         
@@ -851,6 +866,64 @@ MARS_API_EXPORT int32_t BnzSub(
     }
     // return:
     return b;
+}
+
+MARS_API_EXPORT int32_t BnzMul(
+    bnzptr_t pOut,
+    bnzptr_t pIn1,
+    bnzptr_t pIn2
+)
+{
+    /*
+    int32_t BnzMul(
+        bnzptr_t pOut,
+        bnzptr_t pIn1,
+        bnzptr_t pIn2
+    )
+
+    Arg:
+    - pOut: target (bnz_t) object output pointer
+    - pIn1: target (bnz_t) object input 1 pointer
+    - pIn2: target (bnz_t) object input 2 pointer
+
+    Do:
+    - Do (pOut) = (pIn1) * (pIn2),
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pOut) || (!pIn1) || (!pIn2)){
+        // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+
+
+    ///*
+    // 구현 1: naive 구현 1
+    bnz_t bn_i;
+    bnz_t bn_result;
+
+    BnzInit(bn_i);
+    BnzInit(bn_result);
+
+    // (pIn2) times: bn_result += (pIn1)
+    for(BnzAssign(bn_i, bn_zero); (BnzCompare(pIn2, bn_i) == 1); (BnzAdd(bn_i, bn_i, bn_one))){
+        BnzAdd(bn_result, bn_result, pIn1); // bn_result += pIn1
+    }
+    BnzAssign(pOut, bn_result); // pOut = bn_result
+    // clear:
+    BnzFinal(bn_i);
+    BnzFinal(bn_result);
+    //*/
+    //
+
+    // end:
+    return 0;
 }
 
 // end code

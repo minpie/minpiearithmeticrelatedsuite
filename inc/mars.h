@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.07.08
+last modified: 2026.07.19
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -22,6 +22,8 @@ version: 0.0.1
 
 // constant:
 #define CONST_SIZE_DEFAULT_BNZ_WORDS 1 // default value of number of words used when allocate pData in BnzInit()
+#define CONST_SIGN_POSITIVE 1 //
+#define CONST_SIGN_NEGATIVE -1 //
 
 
 // parameter:
@@ -82,6 +84,7 @@ MARS_API_EXPORT void BnzAssign(bnzptr_t pOut, bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzSgn(bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzAdd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT int32_t BnzSub(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzMul(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 
 #endif
 // end code

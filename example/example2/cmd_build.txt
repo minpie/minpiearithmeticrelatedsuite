@@ -5,4 +5,5 @@ gcc \
 -l mars \
 -lm \
 -o example/example2/example2 \
-example/example2/example2.c
+example/example2/example2.c \
+-lgmp
