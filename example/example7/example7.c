@@ -2,7 +2,7 @@
 example7.c
 
 created: 2026.07.07
-last modified: 2026.07.19
+last modified: 2026.08.18
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -66,53 +66,68 @@ void Test_CrossValidation(uint64_t n){
     case 1. bn_a + bn_b
     case 3. bn_a - bn_b
     case 5. bn_a * bn_b
+    case 7. bn_a / bn_b
     
     검증용:
     case 2. gn_a + gn_b
     case 4. gn_a - gn_b
     case 6. gn_a * gn_b
+    case 8. gn_a / gn_b
 
     */
     //
     uint64_t errCase1 = 0;
     uint64_t errCase3 = 0;
     uint64_t errCase5 = 0;
+    uint64_t errCase7 = 0;
     int flg = 0;
 
     //
     mpz_t gn_a, gn_b;
-    mpz_t gn_case2, gn_case4, gn_case6;
+    mpz_t gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
     bnz_t bn_a, bn_b;
-    bnz_t bn_case1, bn_case3, bn_case5;
+    bnz_t bn_case1, bn_case3, bn_case5, bn_case7_q, bn_case7_r;
     uint8_t a[MAX_N_BYTES] = {0, };
     uint8_t b[MAX_N_BYTES] = {0, };
     uint8_t ba_case1[MAX_N_BYTES] = {0, };
-    uint8_t ba_case3[MAX_N_BYTES] = {0, };
     uint8_t ba_case2[MAX_N_BYTES] = {0, };
+    uint8_t ba_case3[MAX_N_BYTES] = {0, };
     uint8_t ba_case4[MAX_N_BYTES] = {0, };
     uint8_t ba_case5[MAX_N_BYTES] = {0, };
     uint8_t ba_case6[MAX_N_BYTES] = {0, };
+    uint8_t ba_case7_q[MAX_N_BYTES] = {0, };
+    uint8_t ba_case7_r[MAX_N_BYTES] = {0, };
+    uint8_t ba_case8_q[MAX_N_BYTES] = {0, };
+    uint8_t ba_case8_r[MAX_N_BYTES] = {0, };
     int ba_case2_siz = 0;
     int ba_case4_siz = 0;
     int ba_case6_siz = 0;
+    int ba_case8_q_siz = 0;
+    int ba_case8_r_siz = 0;
 
     // init:
-    mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, NULL);
+    mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
     BnzInit(bn_a);
     BnzInit(bn_b);
     BnzInit(bn_case1);
     BnzInit(bn_case3);
     BnzInit(bn_case5);
+    BnzInit(bn_case7_q);
+    BnzInit(bn_case7_r);
 
     // operation:
     for(uint64_t i=0; i<n; i++){
         // clear:
         memset(ba_case1, 0, MAX_N_BYTES); // ba_case1 = 0
-        memset(ba_case3, 0, MAX_N_BYTES); // ba_case3 = 0
         memset(ba_case2, 0, MAX_N_BYTES); // ba_case2 = 0
+        memset(ba_case3, 0, MAX_N_BYTES); // ba_case3 = 0
         memset(ba_case4, 0, MAX_N_BYTES); // ba_case4 = 0
         memset(ba_case5, 0, MAX_N_BYTES); // ba_case5 = 0
         memset(ba_case6, 0, MAX_N_BYTES); // ba_case6 = 0
+        memset(ba_case7_q, 0, MAX_N_BYTES); // ba_case7_q = 0
+        memset(ba_case7_r, 0, MAX_N_BYTES); // ba_case7_r = 0
+        memset(ba_case8_q, 0, MAX_N_BYTES); // ba_case8_q = 0
+        memset(ba_case8_r, 0, MAX_N_BYTES); // ba_case8_r = 0
         memset(a, 0, MAX_N_BYTES);
         memset(b, 0, MAX_N_BYTES);
         flg = 0;
@@ -120,8 +135,8 @@ void Test_CrossValidation(uint64_t n){
         // get digits:
         uint64_t siz_a = 0;
         uint64_t siz_b = 0;
-        siz_a = (rand() % MAX_N_BYTES);
-        siz_b = (rand() % MAX_N_BYTES);
+        siz_a = (rand() % (MAX_N_BYTES / 2));
+        siz_b = (rand() % (MAX_N_BYTES / 2));
         GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
         GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
 
@@ -141,6 +156,9 @@ void Test_CrossValidation(uint64_t n){
         // calc case5:
         BnzMul(bn_case5, bn_a, bn_b); // bn_case5 = bn_a * bn_b
 
+        // calc case7:
+        BnzDiv(bn_case7_q, bn_case7_r, bn_a, bn_b); // bn_a / bn_b, q=bn_case7_q, r=bn_case7_r
+
         // calc case2:
         mpz_add(gn_case2, gn_a, gn_b); // gn_case2 = gn_a + gn_b
 
@@ -150,22 +168,31 @@ void Test_CrossValidation(uint64_t n){
         // calc case6:
         mpz_mul(gn_case6, gn_a, gn_b); // gn_case6 = gn_a * gn_b
 
+        // calc case8:
+        mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
+
         // convert:
         BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
         BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
         BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
+        BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
+        BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
         ba_case2_siz = mpz_sizeinbase(gn_case2, 256);
         ba_case4_siz = mpz_sizeinbase(gn_case4, 256);
         ba_case6_siz = mpz_sizeinbase(gn_case6, 256);
+        ba_case8_q_siz = mpz_sizeinbase(gn_case8_q, 256);
+        ba_case8_r_siz = mpz_sizeinbase(gn_case8_r, 256);
         mpz_export((ba_case2 + (MAX_N_BYTES - ba_case2_siz)), NULL, 1, 1, 1, 0, gn_case2); // ba_case2 = gn_case2
         mpz_export((ba_case4 + (MAX_N_BYTES - ba_case4_siz)), NULL, 1, 1, 1, 0, gn_case4); // ba_case4 = gn_case4
         mpz_export((ba_case6 + (MAX_N_BYTES - ba_case6_siz)), NULL, 1, 1, 1, 0, gn_case6); // ba_case6 = gn_case6
+        mpz_export((ba_case8_q + (MAX_N_BYTES - ba_case8_q_siz)), NULL, 1, 1, 1, 0, gn_case8_q); // ba_case8_q = gn_case8_q
+        mpz_export((ba_case8_r + (MAX_N_BYTES - ba_case8_r_siz)), NULL, 1, 1, 1, 0, gn_case8_r); // ba_case8_r = gn_case8_r
 
         // compare:
         if(memcmp(ba_case1, ba_case2, MAX_N_BYTES) != 0){
             // ba_case1 != ba_case2:
             errCase1++;
-            //printf("error in addition    : i=%lu, j=%lu\n", i, j);
+            //printf("error in addition        : i=%lu, j=%lu\n", i, j);
             printf("ba_case1 = "); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
             printf("ba_case2 = "); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
             flg = 1;
@@ -173,17 +200,30 @@ void Test_CrossValidation(uint64_t n){
         if(memcmp(ba_case3, ba_case4, MAX_N_BYTES) != 0){
             // ba_case3 != ba_case4:
             errCase3++;
-            //printf("error in substitution: i=%lu, j=%lu\n", i, j);
+            //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
             printf("ba_case3 = "); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
             printf("ba_case4 = "); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
             flg = 1;
         }
         if(memcmp(ba_case5, ba_case6, MAX_N_BYTES) != 0){
             // ba_case5 != ba_case6:
-            errCase3++;
-            //printf("error in multiplication: i=%lu, j=%lu\n", i, j);
+            errCase5++;
+            //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
             printf("ba_case5 = "); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
             printf("ba_case6 = "); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
+            flg = 1;
+        }
+        if(
+            (memcmp(ba_case7_q, ba_case8_q, MAX_N_BYTES) != 0) ||
+            (memcmp(ba_case7_r, ba_case8_r, MAX_N_BYTES) != 0)
+        ){
+            // ba_case7 != ba_case8:
+            errCase7++;
+            //printf("error in division  : i=%lu, j=%lu\n", i, j);
+            printf("ba_case7_q = "); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
+            printf("ba_case8_q = "); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
+            printf("ba_case7_r = "); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
+            printf("ba_case8_r = "); TestPrintHex(ba_case8_r, MAX_N_BYTES); printf("\n");
             flg = 1;
         }
         if(flg){
@@ -192,21 +232,25 @@ void Test_CrossValidation(uint64_t n){
     }
 
     // clear:
-    mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, NULL);
+    mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
     BnzFinal(bn_a);
     BnzFinal(bn_b);
     BnzFinal(bn_case1);
     BnzFinal(bn_case3);
     BnzFinal(bn_case5);
+    BnzFinal(bn_case7_q);
+    BnzFinal(bn_case7_r);
 
     // print result:
     printf("Total case                 = %lu\n", (n));
     printf("Total addition error       = %lu\n", errCase1);
     printf("Total substitution error   = %lu\n", errCase3);
     printf("Total multiplication error = %lu\n", errCase5);
+    printf("Total division error       = %lu\n", errCase5);
     printf("Addition error rate        = %.4lf\n", ((double)errCase1 / (n)));
     printf("Substitution error rate    = %.4lf\n", ((double)errCase3 / (n)));
     printf("Multiplication error rate  = %.4lf\n", ((double)errCase5 / (n)));
+    printf("Division error rate        = %.4lf\n", ((double)errCase7 / (n)));
 
     // return:
     return;

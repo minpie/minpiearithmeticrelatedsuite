@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.07.19
+last modified: 2026.08.18
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -904,7 +904,33 @@ MARS_API_EXPORT int32_t BnzMul(
 
 
     ///*
-    // 구현 1: naive 구현 1
+    // 구현 2: naive 구현 2: 참을만함
+    bnz_t bn_temp;
+    bnz_t bn_result;
+
+    BnzInit(bn_temp);
+    BnzInit(bn_result);
+
+    //
+    BnzAssign(bn_temp, pIn2); // bn_temp = pIn2
+    for(int32_t i=0; i<(sizeof(bnword_t) * (pIn1->allocated) << 3); i++){
+        if(((*((pIn1->pData) + (i / (sizeof(bnword_t) << 3))) >> (i % (sizeof(bnword_t) << 3))) & 1) == 1){
+            BnzAdd(bn_result, bn_result, bn_temp); // bn_result += bn_temp
+        }
+        if(i < ((sizeof(bnword_t) * (pIn1->allocated) << 3) - 1)){
+            // 마지막 루프시 (bn_temp *= 2) 생략 위함
+            BnzAdd(bn_temp, bn_temp, bn_temp); // bn_temp *= 2
+        }
+    }
+    BnzAssign(pOut, bn_result); // pOut = bn_result
+    // clear:
+    BnzFinal(bn_temp);
+    BnzFinal(bn_result);
+    //*/
+    //
+
+    /*
+    // 구현 1: naive 구현 1: 너무 느림
     bnz_t bn_i;
     bnz_t bn_result;
 
@@ -919,6 +945,123 @@ MARS_API_EXPORT int32_t BnzMul(
     // clear:
     BnzFinal(bn_i);
     BnzFinal(bn_result);
+    */
+    //
+
+    // end:
+    return 0;
+}
+
+
+MARS_API_EXPORT int32_t BnzDiv(
+    bnzptr_t pOut1,
+    bnzptr_t pOut2,
+    bnzptr_t pIn1,
+    bnzptr_t pIn2
+)
+{
+    /*
+    int32_t BnzDiv(
+        bnzptr_t pOut1,
+        bnzptr_t pOut2,
+        bnzptr_t pIn1,
+        bnzptr_t pIn2
+    )
+
+    Arg:
+    - pOut1: target (bnz_t) object output 1 pointer
+    - pOut2: target (bnz_t) object output 2 pointer
+    - pIn1: target (bnz_t) object input 1 pointer
+    - pIn2: target (bnz_t) object input 2 pointer
+
+    Do:
+    - Do (pIn1) / (pIn2), q = (pOut1), r = (pOut2)
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pOut1) || (!pOut2) || (!pIn1) || (!pIn2)){
+        // exception: pOut1 is NULL OR pOut2 is NULL OR pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+
+    /*
+    // 구현 1: naive 구현 1: 너무 느림
+    bnz_t bn_temp;
+    bnz_t bn_q, bn_r;
+
+    BnzInit(bn_temp);
+    BnzInit(bn_q);
+    BnzInit(bn_r);
+
+    BnzAssign(bn_temp, pIn1); // bn_temp = pIn1
+    while(BnzCompare(bn_temp, pIn2) > 0){
+        //
+        BnzSub(bn_temp, bn_temp, pIn2); // bn_temp -= pIn2
+        BnzAdd(bn_q, bn_q, bn_one); // bn_q += 1
+    }
+    BnzAssign(bn_r, bn_temp); // bn_r = bn_temp
+
+    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
+    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
+
+    BnzFinal(bn_temp);
+    BnzFinal(bn_q);
+    BnzFinal(bn_r);    
+    */
+    //
+
+    ///*
+    // 구현 2: naive 구현 2
+
+
+    
+    //if D = 0 then error(DivisionByZeroException) end
+    //Q := 0                  -- Initialize quotient and remainder to zero
+    //R := 0                     
+    //for i := n − 1 .. 0 do  -- Where n is number of bits in N
+    //R := R << 1           -- Left-shift R by 1 bit
+    //R(0) := N(i)          -- Set the least-significant bit of R equal to bit i of the numerator
+    //if R ≥ D then
+    //    R := R − D
+    //    Q(i) := 1
+    //end
+    //end
+    //
+
+    bnz_t bn_q, bn_r, bn_temp1;
+    BnzInit(bn_q);
+    BnzInit(bn_r);
+    BnzInit(bn_temp1);
+
+    int32_t n = BnhGetDigitsInBytes_LE(pIn1->pData, (sizeof(bnword_t) * (pIn1->allocated))) << 3;
+    BnzAssign(bn_temp1, bn_one); // bn_temp1 = 1
+
+    for(int32_t i=n-1; i>=0; i--){
+        BnzAdd(bn_r, bn_r, bn_r); // bn_r = bn_r << 1
+
+        // r[bit 0] = n[bit i]:
+        *(bn_r->pData) = ((*(bn_r->pData)) & (((bnword_t)-1) - 1)) | (((*((pIn1->pData) + (i / (sizeof(bnword_t) << 3)))) >> (i % (sizeof(bnword_t) << 3))) & 1);
+
+        //
+        if(BnzCompare(bn_r, pIn2) >= 0){
+            BnzSub(bn_r, bn_r, pIn2); // bn_r = bn_r - pIn2
+            BnzAdd(bn_q, bn_q, bn_temp1); // q[bit i] = 1
+        }
+        BnzAdd(bn_temp1, bn_temp1, bn_temp1); // bn_temp1 = bn_temp1 << 1
+    }
+
+    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
+    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
+
+    BnzFinal(bn_q);
+    BnzFinal(bn_r);
+    BnzFinal(bn_temp1);
     //*/
     //
 
