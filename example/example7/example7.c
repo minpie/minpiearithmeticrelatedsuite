@@ -2,7 +2,7 @@
 example7.c
 
 created: 2026.07.07
-last modified: 2026.08.18
+last modified: 2026.08.20
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -114,6 +114,9 @@ void Test_CrossValidation(uint64_t n){
     BnzInit(bn_case5);
     BnzInit(bn_case7_q);
     BnzInit(bn_case7_r);
+
+    //srand(time(NULL));
+    srand(0x13579);
 
     // operation:
     for(uint64_t i=0; i<n; i++){
@@ -256,11 +259,10 @@ void Test_CrossValidation(uint64_t n){
     return;
 }
 
-
 // main():
 int main(void){
     //Test_CrossValidation(10000000);
-    Test_CrossValidation(1000);
+    Test_CrossValidation(40);
     return 0;
 }
 // end code

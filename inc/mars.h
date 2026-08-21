@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.08.18
+last modified: 2026.08.20
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -72,6 +72,8 @@ MARS_API_EXPORT int32_t BnhMemcmp(void * pIn1, void * pIn2, int32_t len);
 MARS_API_EXPORT void BnhZeroize(void * pIn, int32_t len);
 MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(uint8_t * pBaIn, int32_t lenBaIn);
 MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t BnhGetDigitsInBits_LE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t BnhGetDigitsInBits_BE(uint8_t * pBaIn, int32_t lenBaIn);
 
 
 // Bnz: signed integer related function:
@@ -82,6 +84,12 @@ MARS_API_EXPORT int32_t BnzBn2Ba(uint8_t * pBaOut, int32_t lenBaOut, bnzptr_t pI
 MARS_API_EXPORT int32_t BnzCompare(bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT void BnzAssign(bnzptr_t pOut, bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzSgn(bnzptr_t pIn);
+MARS_API_EXPORT int32_t BnzBitwiseAnd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzBitwiseOr(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzBitwiseXor(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzBitwiseNot(bnzptr_t pOut, bnzptr_t pIn);
+MARS_API_EXPORT int32_t BnzBitwiseLeftShift(bnzptr_t pOut, bnzptr_t pIn, int32_t shift);
+MARS_API_EXPORT int32_t BnzBitwiseRightShift(bnzptr_t pOut, bnzptr_t pIn, int32_t shift);
 MARS_API_EXPORT int32_t BnzAdd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT int32_t BnzSub(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT int32_t BnzMul(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
