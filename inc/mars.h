@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.08.20
+last modified: 2026.08.27
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -58,7 +58,7 @@ typedef struct __bnz_t{
     // signed integer type
     bnword_t * pData; //
     int32_t allocated; // (number of bnword_t in pData)
-    int32_t used; // (ceil(log8((the raw number) | 1)) * sign), or ("size in bytes" * sign), sign will be 1(positive) or -1(negative)
+    int32_t used; // (max(log8((the raw number) | 1), 1) * sign) or ("size in bytes" * sign), sign will be 1(positive) or -1(negative)
 }_bnz_t;
 typedef _bnz_t bnz_t[1];
 typedef _bnz_t * bnzptr_t;
