@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.08.27
+last modified: 2026.09.16
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -57,8 +57,7 @@ typedef uint8_t bnword_t;
 typedef struct __bnz_t{
     // signed integer type
     bnword_t * pData; //
-    int32_t allocated; // (number of bnword_t in pData)
-    int32_t used; // (max(log8((the raw number) | 1), 1) * sign) or ("size in bytes" * sign), sign will be 1(positive) or -1(negative)
+    int32_t allocated; // ((sign) * (number of bnword_t in pData)), sign will be 1(0 or positive) or -1(negative)
 }_bnz_t;
 typedef _bnz_t bnz_t[1];
 typedef _bnz_t * bnzptr_t;
@@ -82,6 +81,7 @@ MARS_API_EXPORT void BnzFinal(bnzptr_t pIn);
 MARS_API_EXPORT void BnzBa2Bn(bnzptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn, int32_t sign);
 MARS_API_EXPORT int32_t BnzBn2Ba(uint8_t * pBaOut, int32_t lenBaOut, bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzCompare(bnzptr_t pIn1, bnzptr_t pIn2);
+MARS_API_EXPORT int32_t BnzCompareAbs(bnzptr_t pIn1, bnzptr_t pIn2);
 MARS_API_EXPORT void BnzAssign(bnzptr_t pOut, bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzSgn(bnzptr_t pIn);
 MARS_API_EXPORT int32_t BnzBitwiseAnd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);

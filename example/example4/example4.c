@@ -123,17 +123,17 @@ void Test1(void){
 
     // test:
     printf("a is %u bytes number.\n", BnhGetDigitsInBytes_BE(a, 256));
-    printf("bn_a[%u:%u] = ", ABS(bn_a->used), ((bn_a->allocated) * 8)); TestPrintHex((uint8_t *)(bn_a->pData), bn_a->used); printf("\n");
+    printf("bn_a[%u:%u] =\n", BnhGetDigitsInBytes_LE((bn_a->pData), (ABS(bn_a->allocated) * 8)), ((bn_a->allocated) * 8)); TestPrintHex((uint8_t *)(bn_a->pData), BnhGetDigitsInBytes_LE((bn_a->pData), (ABS(bn_a->allocated) * 8))); printf("\n");
 
     printf("b is %u bytes number.\n", BnhGetDigitsInBytes_BE(b, 256));
-    printf("bn_b[%u:%u] = ", ABS(bn_b->used), ((bn_b->allocated) * 8)); TestPrintHex((uint8_t *)(bn_b->pData), bn_b->used); printf("\n");
+    printf("bn_b[%u:%u] =\n", BnhGetDigitsInBytes_LE((bn_b->pData), (ABS(bn_b->allocated) * 8)), ((bn_b->allocated) * 8)); TestPrintHex((uint8_t *)(bn_b->pData), BnhGetDigitsInBytes_LE((bn_b->pData), (ABS(bn_b->allocated) * 8))); printf("\n");
 
     
     // operation:
     //BnzBn2Ba(c, 256, bn_a); // c = bn_a
     //BnzSub(bn_c, bn_a, bn_b);
     BnzSub(bn_c, bn_b, bn_a);
-    printf("bn_c[%u:%u] = ", ABS(bn_c->used), ((bn_c->allocated) * 8)); TestPrintHex((uint8_t *)(bn_c->pData), bn_c->used); printf("\n");
+    printf("bn_c[%u:%u] =\n", BnhGetDigitsInBytes_LE((bn_c->pData), (ABS(bn_c->allocated) * 8)), ((bn_c->allocated) * 8)); TestPrintHex((uint8_t *)(bn_c->pData), BnhGetDigitsInBytes_LE((bn_c->pData), (ABS(bn_c->allocated) * 8))); printf("\n");
     // big number -> bytes:
     int32_t resultSign = BnzBn2Ba(c, 256, bn_c); // c = bn_c
     

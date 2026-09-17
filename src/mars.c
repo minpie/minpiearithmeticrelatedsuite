@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.08.27
+last modified: 2026.09.17
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -19,17 +19,13 @@ const bnz_t bn_zero = {
     // pData:
     _bnword_zero,
     // allocated:
-    CONST_SIZE_DEFAULT_BNZ_WORDS,
-    // used:
-    1
+    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS)
 }; // constant for 0
 const bnz_t bn_one = {
     // pData:
     _bnword_one,
     // allocated:
-    CONST_SIZE_DEFAULT_BNZ_WORDS,
-    // used:
-    1
+    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS)
 }; // constant for 1
 
 
@@ -70,7 +66,7 @@ MARS_API_EXPORT void BnhMemcpy(
         return;
     }
     // else:
-    memmove(pOut, pIn, (size_t)len); // copy
+    memmove(pOut, pIn, (size_t)(ABS(len))); // copy
 
     // return:
     return;
@@ -109,7 +105,7 @@ MARS_API_EXPORT void BnhMemset(
         return;
     }
     // else:
-    memset(pOut, val, (size_t)len); // fill
+    memset(pOut, val, (size_t)(ABS(len))); // fill
 
     // return:
     return;
@@ -152,7 +148,7 @@ MARS_API_EXPORT int32_t BnhMemcmp(
     }
     // else:
     int32_t result = 0;
-    result = memcmp(pIn1, pIn2, (size_t)len); // compare
+    result = memcmp(pIn1, pIn2, (size_t)(ABS(len))); // compare
 
     // return:
     return result;
@@ -188,7 +184,7 @@ MARS_API_EXPORT void BnhZeroize(
         return;
     }
     // else:
-    memset(pOut, 0, (size_t)len); // zeroize
+    memset(pOut, 0, (size_t)(ABS(len))); // zeroize
 
     // return:
     return;
@@ -428,8 +424,7 @@ MARS_API_EXPORT void BnzInit(
     }
     // else:
     BnhZeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t))); // reset to 0
-    pIn->allocated = CONST_SIZE_DEFAULT_BNZ_WORDS;
-    pIn->used = 1;
+    pIn->allocated = CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS;
     
 
     // return:
@@ -465,12 +460,11 @@ MARS_API_EXPORT void BnzFinal(
     // else:
     if(pIn->pData){
         // pIn->pData != NULL:
-        BnhZeroize((void *)(pIn->pData), ((pIn->allocated) * sizeof(bnword_t))); // reset to 0
+        BnhZeroize((void *)(pIn->pData), (ABS(pIn->allocated) * sizeof(bnword_t))); // reset to 0
         free(pIn->pData);
     }
     pIn->pData = NULL;
     pIn->allocated = 0;
-    pIn->used = 0;
 
     // return:
     return; 
@@ -515,18 +509,16 @@ MARS_API_EXPORT void BnzBa2Bn(
     int32_t digitsInBytes = 0;
     int32_t neededWords = 0;
     digitsInBytes = BnhGetDigitsInBytes_BE(pBaIn, lenBaIn); // get digits in bytes
-    neededWords = (int32_t)(ceil(((double)digitsInBytes) / sizeof(bnword_t))); // get needed words from needed bytes
+    neededWords = (digitsInBytes + (sizeof(bnword_t) - 1)) / sizeof(bnword_t); // get needed words from needed bytes
     neededWords = MAX(neededWords, 1);
     pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reallocate words
-    pOut->allocated = neededWords;
-    pOut->used = sign * MAX(digitsInBytes, 1);
-    BnhZeroize((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reset to 0
-    
     if(!(pOut->pData)){
         // exception: failed to realloc()
         return;
     }
     // else:
+    pOut->allocated = sign * neededWords;
+    BnhZeroize((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reset to 0
     for(int32_t i=0; i<digitsInBytes; i++){
         *(((uint8_t *)(pOut->pData)) + i) = (uint8_t)(*(pBaIn + lenBaIn - 1 - i));
     }
@@ -569,10 +561,10 @@ MARS_API_EXPORT int32_t BnzBn2Ba(
     }
     // else:
     int32_t sign = 0;
-    for(int32_t i=0; ((i<lenBaOut) && (i<ABS(pIn->used))); i++){
+    for(int32_t i=0; ((i<lenBaOut) && (i<(ABS(pIn->allocated) * sizeof(bnword_t)))); i++){
         *(pBaOut + lenBaOut - 1 - i) = *(((uint8_t *)(pIn->pData)) + i);
     }
-    sign = (((pIn->used) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
+    sign = (((pIn->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
 
     // return:
     return sign; 
@@ -611,31 +603,91 @@ MARS_API_EXPORT int32_t BnzCompare(
         return 0;
     }
     // else:
-    if((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) > (((pIn2->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE)){
+    if((!pIn1) || (!pIn2)){
+        // exception: pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+    if((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) > (((pIn2->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE)){
         // pIn1: 양수, pIn2: 음수
-        return 1;
-    }else if((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) < (((pIn2->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE)){
+        return CONST_SIGN_POSITIVE;
+    }else if((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) < (((pIn2->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE)){
         // pIn1: 음수, pIn2: 양수
-        return -1;
+        return CONST_SIGN_NEGATIVE;
     }else{
         // 부호 같음:
         if((pIn1->allocated) > (pIn2->allocated)){
-            return ((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) * CONST_SIGN_POSITIVE);
+            return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_POSITIVE);
         }else if((pIn1->allocated) < (pIn2->allocated)){
-            return ((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) * CONST_SIGN_NEGATIVE);
+            return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_NEGATIVE);
         }else{
             // 워드 수 같음:
             // else:
-            for(int32_t i=0; i<(pIn1->allocated); i++){
-                if(*((pIn1->pData) + (pIn1->allocated) - 1 - i) > *((pIn2->pData) + (pIn1->allocated) - 1 - i)){
-                    return ((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) * CONST_SIGN_POSITIVE);
-                }else if(*((pIn1->pData) + (pIn1->allocated) - 1 - i) < *((pIn2->pData) + (pIn1->allocated) - 1 - i)){
-                    return ((((pIn1->used) > 0) ? CONST_SIGN_POSITIVE : CONST_SIGN_NEGATIVE) * CONST_SIGN_NEGATIVE);
+            for(int32_t i=0; i<ABS(pIn1->allocated); i++){
+                if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) > *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
+                    return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_POSITIVE);
+                }else if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) < *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
+                    return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE: CONST_SIGN_POSITIVE) * CONST_SIGN_NEGATIVE);
                 }
             }
         }
     }
     // else: 부호 및 값 같음
+    // return:
+    return 0;
+}
+
+MARS_API_EXPORT int32_t BnzCompareAbs(
+    bnzptr_t pIn1,
+    bnzptr_t pIn2
+)
+{
+    /*
+    int32_t BnzCompareAbs(
+        bnzptr_t pIn1,
+        bnzptr_t pIn2
+    )
+
+    Arg:
+    - pIn1: target (bnz_t) object 1 pointer
+    - pIn2: target (bnz_t) object 2 pointer
+
+    Do:
+    - Compare ABS(pIn1) and ABS(pIn2),
+    return 0 if same,
+    return 1 if ABS(pIn1) > ABS(pIn2),
+    return -1 if ABS(pIn1) < ABS(pIn2)  
+
+    Return:
+    - (int32_t) value: -1 OR 0 OR 1
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pIn1) || (!pIn2)){
+        // exception: pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+    if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
+        // ABS(pIn1) > ABS(pIn2):
+        return CONST_SIGN_POSITIVE;
+    }else if(ABS(pIn1->allocated) < ABS(pIn2->allocated)){
+        // ABS(pIn1) < ABS(pIn2):
+        return CONST_SIGN_NEGATIVE;
+    }else{
+        // 워드 수 같음:
+        // else:
+        for(int32_t i=0; i<ABS(pIn1->allocated); i++){
+            if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) > *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
+                return CONST_SIGN_POSITIVE;
+            }else if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) < *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
+                return CONST_SIGN_NEGATIVE;
+            }
+        }
+    }
+    // else: 값 같음
     // return:
     return 0;
 }
@@ -676,10 +728,9 @@ MARS_API_EXPORT void BnzAssign(
         return;
     }
     // else:
-    pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * (pIn->allocated)));
-    BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * (pIn->allocated)));
+    pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * ABS(pIn->allocated)));
     pOut->allocated = pIn->allocated;
-    pOut->used = pIn->used;
 
     // return:
     return;
@@ -715,7 +766,7 @@ MARS_API_EXPORT int32_t BnzSgn(
     }
     // else:
     int32_t result = 0;
-    result = (((pIn->used) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
+    result = (((pIn->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
 
     // return:
     return result;
@@ -755,10 +806,10 @@ MARS_API_EXPORT int32_t BnzBitwiseAnd(
     }
 
     // else:
-    for(int32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
+    for(int32_t i=0; i<(MIN(ABS(pIn1->allocated), ABS(pIn2->allocated))); i++){
         *((pOut->pData) + i) = *((pIn1->pData) + i) & *((pIn2->pData) + i);
     }
-    for(int32_t i=(MIN(pIn1->allocated, pIn2->allocated)); i<(MAX(pIn1->allocated, pIn2->allocated)); i++){
+    for(int32_t i=(MIN(ABS(pIn1->allocated), ABS(pIn2->allocated))); i<(MAX(ABS(pIn1->allocated), ABS(pIn2->allocated))); i++){
         *((pOut->pData) + i) = 0;
     }
 
@@ -804,7 +855,7 @@ MARS_API_EXPORT int32_t BnzBitwiseOr(
     bnzptr_t temp2 = NULL;
     bnz_t temp3;
     BnzInit(temp3);
-    if((pIn1->allocated) > (pIn2->allocated)){
+    if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
         temp1 = pIn1;
         temp2 = pIn2;
     }else{
@@ -814,7 +865,7 @@ MARS_API_EXPORT int32_t BnzBitwiseOr(
 
     BnzAssign(temp3, temp1);
 
-    for(int32_t i=0; i<(temp2->allocated); i++){
+    for(int32_t i=0; i<ABS(temp2->allocated); i++){
         *((temp3->pData) + i) = *((temp1->pData) + i) | *((temp2->pData) + i);
     }
     BnzAssign(pOut, temp3);
@@ -859,34 +910,27 @@ MARS_API_EXPORT int32_t BnzBitwiseXor(
 
     // else:
     bnzptr_t temp1 = NULL;
-    bnz_t temp2;
-    BnzInit(temp2);
-
-    int32_t estimatedWords = MAX((pIn1->allocated), (pIn2->allocated));
-    temp2->pData = realloc((void *)(temp2->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
-    temp2->allocated = estimatedWords;
-    temp2->used = MAX(ABS(pIn1->used), ABS(pIn2->used));
-    BnhZeroize((void *)(temp2->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
-
-    for(int32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
-        *((temp2->pData) + i) = *((pIn1->pData) + i) ^ *((pIn2->pData) + i);
-    }
-
-    if((pIn1->allocated) > (pIn2->allocated)){
+    bnzptr_t temp2 = NULL;
+    bnz_t temp3;
+    BnzInit(temp3);
+    if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
         temp1 = pIn1;
-    }else if((pIn1->allocated) < (pIn2->allocated)){
+        temp2 = pIn2;
+    }else{
         temp1 = pIn2;
+        temp2 = pIn1;
     }
 
-    if(temp1){
-        for(int32_t i=(MIN(pIn1->allocated, pIn2->allocated)); i<(MAX(pIn1->allocated, pIn2->allocated)); i++){
-            *((temp2->pData) + i) = *((temp1->pData) + i);
-        }
+    BnzAssign(temp3, temp1);
+
+    for(int32_t i=0; i<ABS(temp2->allocated); i++){
+        *((temp3->pData) + i) = *((temp1->pData) + i) ^ *((temp2->pData) + i);
     }
-    BnzAssign(pOut, temp2);
+    BnzAssign(pOut, temp3);
+
 
     // return:
-    BnzFinal(temp2);
+    BnzFinal(temp3);
     return 0;
 }
 
@@ -1020,7 +1064,7 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     bnword_t * newData = NULL;
     BnzInit(temp1);
 
-    for(int32_t i=((pIn->allocated) - 1); i>=0; i--){
+    for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
         int32_t destidx = srcidx - (shift / (sizeof(bnword_t) << 3));
 
@@ -1034,10 +1078,9 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
             }
         }
     }
-    temp1->used = BnhGetDigitsInBytes_LE((uint8_t *)(temp1->pData), (sizeof(bnword_t) * temp1->allocated));
 
     
-    for(int32_t i=(temp1->allocated) - 1; i>0; i--){
+    for(int32_t i=ABS(temp1->allocated) - 1; i>0; i--){
         if(*((temp1->pData) + i)){
             break;
         }
@@ -1047,7 +1090,6 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
         free(temp1->pData);
         temp1->pData = newData;
         temp1->allocated = i;
-        temp1->used = BnhGetDigitsInBytes_LE((uint8_t *)(temp1->pData), (sizeof(bnword_t) * temp1->allocated));
     }
     BnzAssign(pOut, temp1);
 
@@ -1139,20 +1181,19 @@ MARS_API_EXPORT int32_t BnzAdd(
     int32_t resultSign = 0;
     if(BnzSgn(pIn1) == BnzSgn(pIn2)){
         // case 1. pIn1.sign == pIn2.sign: 그대로 더하기
-        if((pIn1->used) < 0){
+        if((pIn1->allocated) < 0){
             // 음수 + 음수:
-            resultSign = -1; 
+            resultSign = CONST_SIGN_NEGATIVE; 
         }else{
             // 양수 + 양수:
-            resultSign = 1;
+            resultSign = CONST_SIGN_POSITIVE;
         }
         
         BnzInit(t1);
-        estimatedWords = MAX((pIn1->allocated), (pIn2->allocated));
+        estimatedWords = MAX(ABS(pIn1->allocated), ABS(pIn2->allocated));
 
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
-        t1->used = MAX(ABS(pIn1->used), ABS(pIn2->used));
         BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
         
         // s = a + b + c_in
@@ -1164,7 +1205,7 @@ MARS_API_EXPORT int32_t BnzAdd(
         //
 
         // addition:
-        for(int32_t i=0; i<(MIN(pIn1->allocated, pIn2->allocated)); i++){
+        for(int32_t i=0; i<(MIN(ABS(pIn1->allocated), ABS(pIn2->allocated))); i++){
             tempIdx = i;
             s = *((pIn1->pData) + tempIdx) + *((pIn2->pData) + tempIdx) + c;
             if((s < *((pIn1->pData) + tempIdx)) || (c && (s == *((pIn1->pData) + tempIdx)))){
@@ -1177,14 +1218,15 @@ MARS_API_EXPORT int32_t BnzAdd(
         }
 
         // add rest of bigger one:
-        if((pIn1->allocated) > (pIn2->allocated)){
+        if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
             t2 = pIn1;
-        }else if((pIn1->allocated) < (pIn2->allocated)){
+        }else if(ABS(pIn1->allocated) < ABS(pIn2->allocated)){
             t2 = pIn2;
         }
+        
         if(t2){
-            for(int32_t i=0; i<((MAX(pIn1->allocated, pIn2->allocated)) - (MIN(pIn1->allocated, pIn2->allocated))); i++){
-                tempIdx = i + (MIN(pIn1->allocated, pIn2->allocated));
+            for(int32_t i=0; i<((MAX(ABS(pIn1->allocated), ABS(pIn2->allocated))) - (MIN(ABS(pIn1->allocated), ABS(pIn2->allocated)))); i++){
+                tempIdx = i + (MIN(ABS(pIn1->allocated), ABS(pIn2->allocated)));
                 s = *((t2->pData) + tempIdx) + c;
                 if((s < *((t2->pData) + tempIdx)) || (c && (s == *((t2->pData) + tempIdx)))){
                     // overflow detected:
@@ -1195,14 +1237,13 @@ MARS_API_EXPORT int32_t BnzAdd(
                 *((t1->pData) + tempIdx) = s;
             }
         }
-        t1->used = resultSign * (BnhGetDigitsInBytes_LE((uint8_t *)(t1->pData), (sizeof(bnword_t) * t1->allocated)));
 
         if(c){
             t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * (estimatedWords + 1))); // reallocate words
             t1->allocated = estimatedWords + 1;
             *((t1->pData) + tempIdx + 1) = 1;
-            t1->used = resultSign * ((sizeof(bnword_t) * ((t1->allocated) - 1)) + 1);
         }
+        t1->allocated = resultSign * (t1->allocated);
 
         // t1 to pOut:
         bnword_t * oldData = pOut->pData;
@@ -1211,7 +1252,6 @@ MARS_API_EXPORT int32_t BnzAdd(
         }
         pOut->pData = t1->pData;
         pOut->allocated = t1->allocated;
-        pOut->used = t1->used;
     }else{
         // case2. pIn1.sign != pIn2.sign: 뺄셈 수행
         c = BnzSub(pOut, pIn1, pIn2);
@@ -1268,7 +1308,7 @@ MARS_API_EXPORT int32_t BnzSub(
         BnzInit(tBig);
         BnzInit(tSmall);
 
-        if(BnzCompare(pIn1, pIn2) == 1){
+        if(BnzCompareAbs(pIn1, pIn2) == 1){
             // ABS(pIn1) > ABS(pIn2):
             BnzAssign(tBig, pIn1);
             BnzAssign(tSmall, pIn2);
@@ -1279,11 +1319,10 @@ MARS_API_EXPORT int32_t BnzSub(
         }
         
         BnzInit(t1);
-        estimatedWords = MAX((tBig->allocated), (tSmall->allocated));
+        estimatedWords = MAX(ABS(tBig->allocated), ABS(tSmall->allocated));
 
         t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reallocate words
         t1->allocated = estimatedWords;
-        t1->used = MAX(ABS(tBig->used), ABS(tSmall->used));
         BnhZeroize((void *)(t1->pData), (sizeof(bnword_t) * estimatedWords)); // reset to 0
 
         
@@ -1296,7 +1335,7 @@ MARS_API_EXPORT int32_t BnzSub(
         //
 
         // substraction:
-        for(int32_t i=0; i<(MIN(tBig->allocated, tSmall->allocated)); i++){
+        for(int32_t i=0; i<(MIN(ABS(tBig->allocated), ABS(tSmall->allocated))); i++){
             tempIdx = i;
             s = *((tBig->pData) + tempIdx) - *((tSmall->pData) + tempIdx) - b;
             if((s > *((tBig->pData) + tempIdx)) || (b && (s == *((tBig->pData) + tempIdx)))){
@@ -1309,8 +1348,8 @@ MARS_API_EXPORT int32_t BnzSub(
         }
 
         // add rest of bigger one:
-        for(int32_t i=0; i<((MAX(tBig->allocated, tSmall->allocated)) - (MIN(tBig->allocated, tSmall->allocated))); i++){
-            tempIdx = i + (MIN(tBig->allocated, tSmall->allocated));
+        for(int32_t i=0; i<((MAX(ABS(tBig->allocated), ABS(tSmall->allocated))) - (MIN(ABS(tBig->allocated), ABS(tSmall->allocated)))); i++){
+            tempIdx = i + (MIN(ABS(tBig->allocated), ABS(tSmall->allocated)));
             s = *((tBig->pData) + tempIdx) - b;
             if((s > *((tBig->pData) + tempIdx)) || (b && (s == *((tBig->pData) + tempIdx)))){
                 // underflow detected:
@@ -1320,17 +1359,15 @@ MARS_API_EXPORT int32_t BnzSub(
             }
             *((t1->pData) + tempIdx) = s;
         }
-        t1->used = BnhGetDigitsInBytes_LE((uint8_t *)(t1->pData), (sizeof(bnword_t) * t1->allocated));
 
         if(b){
             t1->pData = realloc((void *)(t1->pData), (sizeof(bnword_t) * (estimatedWords + 1))); // reallocate words
             t1->allocated = estimatedWords + 1;
             *((t1->pData) + tempIdx + 1) = 1;
-            t1->used = (sizeof(bnword_t) * ((t1->allocated) - 1)) + 1;
         }
 
-        if(ABS(pIn1->used) < ABS(pIn2->used)){
-            t1->used = (-1) * (t1->used);
+        if(ABS(pIn1->allocated) < ABS(pIn2->allocated)){
+            t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
         }
 
         //
@@ -1344,20 +1381,19 @@ MARS_API_EXPORT int32_t BnzSub(
         }
         pOut->pData = t1->pData;
         pOut->allocated = t1->allocated;
-        pOut->used = t1->used;
     }else{
         // case 2. pIn1.sign != pIn2.sign: 덧셈 수행
         BnzInit(t1);
 
-        if(BnzSgn(pIn1) < BnzSgn(pIn1)){
+        if(BnzSgn(pIn1) > BnzSgn(pIn2)){
             // pIn1: 양수 -> pIn2를 양수로 바꾸어 덧셈:
             BnzAssign(t1, pIn2);
-            t1->used = (-1) * (t1->used);
+            t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
             b = BnzAdd(pOut, pIn1, t1);
         }else{
             // pIn2: 양수 -> pIn1를 양수로 바꾸어 덧셈:
             BnzAssign(t1, pIn1);
-            t1->used = (-1) * (t1->used);
+            t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
             b = BnzAdd(pOut, t1, pIn2);
         }
         BnzFinal(t1);
@@ -1411,11 +1447,11 @@ MARS_API_EXPORT int32_t BnzMul(
 
     //
     BnzAssign(bn_temp, pIn2); // bn_temp = pIn2
-    for(int32_t i=0; i<(sizeof(bnword_t) * (pIn1->allocated) << 3); i++){
+    for(int32_t i=0; i<(sizeof(bnword_t) * ABS(pIn1->allocated) << 3); i++){
         if(((*((pIn1->pData) + (i / (sizeof(bnword_t) << 3))) >> (i % (sizeof(bnword_t) << 3))) & 1) == 1){
             BnzAdd(bn_result, bn_result, bn_temp); // bn_result += bn_temp
         }
-        if(i < ((sizeof(bnword_t) * (pIn1->allocated) << 3) - 1)){
+        if(i < ((sizeof(bnword_t) * ABS(pIn1->allocated) << 3) - 1)){
             // 마지막 루프시 (bn_temp *= 2) 생략 위함
             BnzAdd(bn_temp, bn_temp, bn_temp); // bn_temp *= 2
         }
@@ -1538,7 +1574,7 @@ MARS_API_EXPORT int32_t BnzDiv(
     }
 
     bnz_t bn_q, bn_r, bn_d, bn_temp1;
-    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * (pIn1->allocated)));
+    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated)));
 
     BnzInit(bn_q);
     BnzInit(bn_r);

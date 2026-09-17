@@ -2,7 +2,7 @@
 example6.c
 
 created: 2026.07.07
-last modified: 2026.07.08
+last modified: 2026.09.17
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -47,7 +47,7 @@ void Func_Gn2Bn(bnz_t bnOut, mpz_t gnIn){
     int32_t tempSign = 0;
     tempSiz = mpz_sizeinbase(gnIn, 256);
     tempSign = ((mpz_sgn(gnIn) < 0) ? -1 : 1);
-    mpz_export((tempArr + (MAX_N_BYTES - tempSiz)), &tempSiz, 1, 1, 1, 0, gnIn); // tempArr = gnIn
+    mpz_export((tempArr + (MAX_N_BYTES - tempSiz)), NULL, 1, 1, -1, 0, gnIn); // tempArr = gnIn
     BnzBa2Bn(bnOut, tempArr, MAX_N_BYTES, tempSign); // bnOut = tempArr
     //
     return;
