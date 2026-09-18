@@ -1062,7 +1062,9 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     // else:
     bnz_t temp1;
     bnword_t * newData = NULL;
+    int32_t orgSign = 0;
     BnzInit(temp1);
+    orgSign = BnzSgn(pIn);
 
     for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
@@ -1079,19 +1081,26 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
         }
     }
 
-    
-    for(int32_t i=ABS(temp1->allocated) - 1; i>0; i--){
+    int32_t nonZeroIdx = -1;
+    for(int32_t i=ABS(temp1->allocated) - 1; i>=0; i--){
         if(*((temp1->pData) + i)){
+            nonZeroIdx = i;
             break;
         }
-        newData = (bnword_t *)malloc((sizeof(bnword_t) * i));
-        BnhZeroize((void *)(newData), (sizeof(bnword_t) * i));
-        BnhMemcpy((void *)(newData), (void *)(temp1->pData), (sizeof(bnword_t) * i));
+    }
+    if(nonZeroIdx != -1){
+        newData = (bnword_t *)malloc((sizeof(bnword_t) * (nonZeroIdx + 1)));
+        BnhZeroize((void *)(newData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+        BnhMemcpy((void *)(newData), (void *)(temp1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
         free(temp1->pData);
         temp1->pData = newData;
-        temp1->allocated = i;
+        temp1->allocated = orgSign * (nonZeroIdx + 1);
+        BnzAssign(pOut, temp1);
+    }else{
+        BnzAssign(pOut, bn_zero);
+        //temp1->allocated = orgSign * (temp1->allocated);
     }
-    BnzAssign(pOut, temp1);
+    
 
     BnzFinal(temp1);
     return 0;
@@ -1574,7 +1583,8 @@ MARS_API_EXPORT int32_t BnzDiv(
     }
 
     bnz_t bn_q, bn_r, bn_d, bn_temp1;
-    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated)));
+    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated))); // 검토안됨
+    printf("n = %d\n", n);
 
     BnzInit(bn_q);
     BnzInit(bn_r);
@@ -1597,9 +1607,9 @@ MARS_API_EXPORT int32_t BnzDiv(
         }else{
             BnzAdd(bn_r, bn_r, bn_d); // bn_r = bn_r + bn_d
         }
-        BnzBitwiseRightShift(bn_temp1, bn_temp1, 1); // bn_temp1 = bn_temp1 >> 1
+        BnzBitwiseRightShift(bn_temp1, bn_temp1, 1); // bn_temp1 = bn_temp1 >> 1 // 검토안됨.
     }
-    //BnzBitwiseRightShift(bn_r, bn_r, n);
+    BnzBitwiseRightShift(bn_r, bn_r, n);
     BnzAssign(pOut1, bn_q); // pOut1 = bn_q
     BnzAssign(pOut2, bn_r); // pOut2 = bn_r
 
