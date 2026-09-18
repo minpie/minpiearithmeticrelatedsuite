@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.09.17
+last modified: 2026.09.18
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -27,6 +27,18 @@ const bnz_t bn_one = {
     // allocated:
     (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS)
 }; // constant for 1
+
+
+// for dev:
+void TestPrintHex(void * pData, uint32_t len){
+    for(uint32_t i=0; i<len; i++){
+        if(i && (!(i % 8))){
+            printf(" ");
+        }
+        printf("%02x", ((uint8_t *)pData)[i]);
+    }
+    return;
+}
 
 
 // function:
@@ -570,73 +582,6 @@ MARS_API_EXPORT int32_t BnzBn2Ba(
     return sign; 
 }
 
-MARS_API_EXPORT int32_t BnzCompare(
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
-)
-{
-    /*
-    int32_t BnzCompare(
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
-    )
-
-    Arg:
-    - pIn1: target (bnz_t) object 1 pointer
-    - pIn2: target (bnz_t) object 2 pointer
-
-    Do:
-    - Compare (pIn1) and (pIn2),
-    return 0 if same,
-    return 1 if (pIn1) > (pIn2),
-    return -1 if (pIn1) < (pIn2)  
-
-    Return:
-    - (int32_t) value: -1 OR 0 OR 1
-
-    Other info:
-    - nope
-    */
-    //
-    if((!pIn1) || (!pIn2)){
-        // exception: pIn1 is NULL OR pIn2 is NULL
-        return 0;
-    }
-    // else:
-    if((!pIn1) || (!pIn2)){
-        // exception: pIn1 is NULL OR pIn2 is NULL
-        return 0;
-    }
-    // else:
-    if((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) > (((pIn2->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE)){
-        // pIn1: 양수, pIn2: 음수
-        return CONST_SIGN_POSITIVE;
-    }else if((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) < (((pIn2->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE)){
-        // pIn1: 음수, pIn2: 양수
-        return CONST_SIGN_NEGATIVE;
-    }else{
-        // 부호 같음:
-        if((pIn1->allocated) > (pIn2->allocated)){
-            return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_POSITIVE);
-        }else if((pIn1->allocated) < (pIn2->allocated)){
-            return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_NEGATIVE);
-        }else{
-            // 워드 수 같음:
-            // else:
-            for(int32_t i=0; i<ABS(pIn1->allocated); i++){
-                if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) > *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
-                    return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE) * CONST_SIGN_POSITIVE);
-                }else if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) < *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
-                    return ((((pIn1->allocated) < 0) ? CONST_SIGN_NEGATIVE: CONST_SIGN_POSITIVE) * CONST_SIGN_NEGATIVE);
-                }
-            }
-        }
-    }
-    // else: 부호 및 값 같음
-    // return:
-    return 0;
-}
-
 MARS_API_EXPORT int32_t BnzCompareAbs(
     bnzptr_t pIn1,
     bnzptr_t pIn2
@@ -690,6 +635,59 @@ MARS_API_EXPORT int32_t BnzCompareAbs(
     // else: 값 같음
     // return:
     return 0;
+}
+
+MARS_API_EXPORT int32_t BnzCompare(
+    bnzptr_t pIn1,
+    bnzptr_t pIn2
+)
+{
+    /*
+    int32_t BnzCompare(
+        bnzptr_t pIn1,
+        bnzptr_t pIn2
+    )
+
+    Arg:
+    - pIn1: target (bnz_t) object 1 pointer
+    - pIn2: target (bnz_t) object 2 pointer
+
+    Do:
+    - Compare (pIn1) and (pIn2),
+    return 0 if same,
+    return 1 if (pIn1) > (pIn2),
+    return -1 if (pIn1) < (pIn2)  
+
+    Return:
+    - (int32_t) value: -1 OR 0 OR 1
+
+    Other info:
+    - nope
+    */
+    //
+    if((!pIn1) || (!pIn2)){
+        // exception: pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+    if((pIn1->allocated) > (pIn2->allocated)){
+        return CONST_SIGN_POSITIVE;
+    }else if((pIn1->allocated) < (pIn2->allocated)){
+        return CONST_SIGN_NEGATIVE;
+    }
+    // else:
+    // 부호, 워드 수 같음:
+    int absCompared = 0;
+    absCompared = BnzCompareAbs(pIn1, pIn2);
+    if((pIn1->allocated) < 0){
+        // 음수이므로 결과 반전
+        if(absCompared == CONST_SIGN_POSITIVE){
+            return CONST_SIGN_NEGATIVE;
+        }else if(absCompared == CONST_SIGN_NEGATIVE){
+            return CONST_SIGN_POSITIVE;
+        }
+    }
+    return absCompared;
 }
 
 MARS_API_EXPORT void BnzAssign(
@@ -1066,6 +1064,12 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     BnzInit(temp1);
     orgSign = BnzSgn(pIn);
 
+    newData = (bnword_t *)malloc((sizeof(bnword_t) * ABS(pIn->allocated)));
+    BnhZeroize((void *)(newData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    free(temp1->pData);
+    temp1->pData = newData;
+    temp1->allocated = ABS(pIn->allocated);
+
     for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
         int32_t destidx = srcidx - (shift / (sizeof(bnword_t) << 3));
@@ -1312,6 +1316,7 @@ MARS_API_EXPORT int32_t BnzSub(
 
     bnz_t tBig;
     bnz_t tSmall;
+    bnzptr_t pSmall = NULL;
     if(BnzSgn(pIn1) == BnzSgn(pIn2)){
         // case1. pIn1.sign == pIn2.sign: 뺄셈 수행
         BnzInit(tBig);
@@ -1321,10 +1326,12 @@ MARS_API_EXPORT int32_t BnzSub(
             // ABS(pIn1) > ABS(pIn2):
             BnzAssign(tBig, pIn1);
             BnzAssign(tSmall, pIn2);
+            pSmall = pIn2;
         }else{
             // ABS(pIn1) <= ABS(pIn2):
             BnzAssign(tBig, pIn2);
             BnzAssign(tSmall, pIn1);  
+            pSmall = pIn1;
         }
         
         BnzInit(t1);
@@ -1375,7 +1382,7 @@ MARS_API_EXPORT int32_t BnzSub(
             *((t1->pData) + tempIdx + 1) = 1;
         }
 
-        if(ABS(pIn1->allocated) < ABS(pIn2->allocated)){
+        if(pSmall == pIn1){
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
         }
 
@@ -1607,7 +1614,10 @@ MARS_API_EXPORT int32_t BnzDiv(
         }else{
             BnzAdd(bn_r, bn_r, bn_d); // bn_r = bn_r + bn_d
         }
+        printf("bn_q = "); TestPrintHex(bn_q->pData, (ABS(bn_q->allocated) * sizeof(bnword_t))); printf("\n");
+        printf("bn_temp1 = "); TestPrintHex(bn_temp1->pData, (ABS(bn_temp1->allocated) * sizeof(bnword_t))); printf("\n");
         BnzBitwiseRightShift(bn_temp1, bn_temp1, 1); // bn_temp1 = bn_temp1 >> 1 // 검토안됨.
+
     }
     BnzBitwiseRightShift(bn_r, bn_r, n);
     BnzAssign(pOut1, bn_q); // pOut1 = bn_q
