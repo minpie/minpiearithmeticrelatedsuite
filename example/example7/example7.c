@@ -2,7 +2,7 @@
 example7.c
 
 created: 2026.07.07
-last modified: 2026.09.18
+last modified: 2026.09.20
 author: minpie
 last modify: minpie
 version: 0.0.1
@@ -21,7 +21,6 @@ version: 0.0.1
 #define MAX_N_BYTES 256
 
 // function:
-/*
 void TestPrintHex(void * pData, uint32_t len){
     for(uint32_t i=0; i<len; i++){
         if(i && (!(i % 8))){
@@ -31,8 +30,6 @@ void TestPrintHex(void * pData, uint32_t len){
     }
     return;
 }
-*/
-//
 
 void GetRandom(uint8_t *pOut, uint32_t nOfBytes){
     for(uint32_t i=0; i<nOfBytes; i++){
@@ -107,6 +104,16 @@ void Test_CrossValidation(uint64_t n){
     int ba_case6_siz = 0;
     int ba_case8_q_siz = 0;
     int ba_case8_r_siz = 0;
+    int ba_case1_sig = 0;
+    int ba_case3_sig = 0;
+    int ba_case5_sig = 0;
+    int ba_case7_q_sig = 0;
+    int ba_case7_r_sig = 0;
+    int ba_case2_sig = 0;
+    int ba_case4_sig = 0;
+    int ba_case6_sig = 0;
+    int ba_case8_q_sig = 0;
+    int ba_case8_r_sig = 0;
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
@@ -178,11 +185,16 @@ void Test_CrossValidation(uint64_t n){
         //mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
 
         // convert:
-        BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
-        BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
-        BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
-        BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
-        BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+        ba_case1_sig = BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
+        ba_case3_sig = BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
+        ba_case5_sig = BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
+        ba_case7_q_sig = BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
+        ba_case7_r_sig = BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+        ba_case2_sig = ((mpz_sgn(gn_case2) < 0) ? -1 : 1);
+        ba_case4_sig = ((mpz_sgn(gn_case4) < 0) ? -1 : 1);
+        ba_case6_sig = ((mpz_sgn(gn_case6) < 0) ? -1 : 1);
+        ba_case8_q_sig = ((mpz_sgn(gn_case8_q) < 0) ? -1 : 1);
+        ba_case8_r_sig = ((mpz_sgn(gn_case8_r) < 0) ? -1 : 1);
         ba_case2_siz = mpz_sizeinbase(gn_case2, 256);
         ba_case4_siz = mpz_sizeinbase(gn_case4, 256);
         ba_case6_siz = mpz_sizeinbase(gn_case6, 256);
@@ -195,47 +207,59 @@ void Test_CrossValidation(uint64_t n){
         mpz_export((ba_case8_r + (MAX_N_BYTES - ba_case8_r_siz)), NULL, 1, 1, 1, 0, gn_case8_r); // ba_case8_r = gn_case8_r
 
         // compare:
-        if(memcmp(ba_case1, ba_case2, MAX_N_BYTES) != 0){
+        if(
+            (ba_case1_sig != ba_case2_sig) ||
+            (memcmp(ba_case1, ba_case2, MAX_N_BYTES) != 0)
+        ){
             // ba_case1 != ba_case2:
             errCase1++;
             //printf("error in addition        : i=%lu, j=%lu\n", i, j);
-            printf("ba_case1 = "); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
-            printf("ba_case2 = "); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
-            flg = 1;
-        }
-        if(memcmp(ba_case3, ba_case4, MAX_N_BYTES) != 0){
-            // ba_case3 != ba_case4:
-            errCase3++;
-            //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
-            printf("ba_case3 = "); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
-            printf("ba_case4 = "); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
-            flg = 1;
-        }
-        if(memcmp(ba_case5, ba_case6, MAX_N_BYTES) != 0){
-            // ba_case5 != ba_case6:
-            errCase5++;
-            //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
-            printf("ba_case5 = "); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
-            printf("ba_case6 = "); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
+            printf("ba_case1 = %s", (ba_case1_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
+            printf("ba_case2 = %s", (ba_case2_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
             flg = 1;
         }
         if(
+            (ba_case3_sig != ba_case4_sig) ||
+            (memcmp(ba_case3, ba_case4, MAX_N_BYTES) != 0)
+        ){
+            // ba_case3 != ba_case4:
+            errCase3++;
+            //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
+            printf("ba_case3 = %s", (ba_case3_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
+            printf("ba_case4 = %s", (ba_case4_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
+            flg = 1;
+        }
+        if(
+            (ba_case5_sig != ba_case6_sig) ||
+            (memcmp(ba_case5, ba_case6, MAX_N_BYTES) != 0)
+        ){
+            // ba_case5 != ba_case6:
+            errCase5++;
+            //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
+            printf("ba_case5 = %s", (ba_case5_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
+            printf("ba_case6 = %s", (ba_case6_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
+            flg = 1;
+        }
+        if(
+            (ba_case7_q_sig != ba_case8_q_sig) ||
             (memcmp(ba_case7_q, ba_case8_q, MAX_N_BYTES) != 0) ||
+            (ba_case7_r_sig != ba_case8_r_sig) ||
             (memcmp(ba_case7_r, ba_case8_r, MAX_N_BYTES) != 0)
         ){
             // ba_case7 != ba_case8:
             errCase7++;
             //printf("error in division  : i=%lu, j=%lu\n", i, j);
-            printf("ba_case7_q = "); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
-            printf("ba_case8_q = "); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
-            printf("ba_case7_r = "); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
-            printf("ba_case8_r = "); TestPrintHex(ba_case8_r, MAX_N_BYTES); printf("\n");
+            printf("ba_case7_q = %s", (ba_case7_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
+            printf("ba_case8_q = %s", (ba_case8_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
+            printf("ba_case7_r = %s", (ba_case7_r_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
+            printf("ba_case8_r = %s", (ba_case8_r_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case8_r, MAX_N_BYTES); printf("\n");
             flg = 1;
         }
         if(flg){
-            printf("a        = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
-            printf("b        = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
+            printf("a          = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
+            printf("b          = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
             printf("\n");
+            //break;
         }
     }
 
@@ -282,7 +306,7 @@ void Test_CrossValidation_Custom(void){
     //
 
 
-    ///*
+    /*
     uint8_t a[MAX_N_BYTES] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -322,10 +346,10 @@ void Test_CrossValidation_Custom(void){
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02
     }; // 2
     //
-    //*/
+    */
     //
 
-    /*
+    ///*
     uint8_t a[MAX_N_BYTES] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -365,7 +389,7 @@ void Test_CrossValidation_Custom(void){
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
     }; // 2^64 + 1
     //
-    */
+    //*/
     //
 
     //
@@ -396,6 +420,16 @@ void Test_CrossValidation_Custom(void){
     int ba_case6_siz = 0;
     int ba_case8_q_siz = 0;
     int ba_case8_r_siz = 0;
+    int ba_case1_sig = 0;
+    int ba_case3_sig = 0;
+    int ba_case5_sig = 0;
+    int ba_case7_q_sig = 0;
+    int ba_case7_r_sig = 0;
+    int ba_case2_sig = 0;
+    int ba_case4_sig = 0;
+    int ba_case6_sig = 0;
+    int ba_case8_q_sig = 0;
+    int ba_case8_r_sig = 0;
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
@@ -432,14 +466,16 @@ void Test_CrossValidation_Custom(void){
     // get digits:
     uint64_t siz_a = 0;
     uint64_t siz_b = 0;
-    siz_a = (rand() % (MAX_N_BYTES / 2));
-    siz_b = (rand() % (MAX_N_BYTES / 2));
-    //GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
-    //GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
+    //siz_a = (rand() % (MAX_N_BYTES / 2));
+    //siz_b = (rand() % (MAX_N_BYTES / 2));
+    siz_a = 24;
+    siz_b = 16;
+    GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
+    GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
 
     //
-    BnzBa2Bn(bn_a, a, MAX_N_BYTES, 1);
-    BnzBa2Bn(bn_b, b, MAX_N_BYTES, 1);
+    BnzBa2Bn(bn_a, a, MAX_N_BYTES, CONST_SIGN_POSITIVE); // bn_a = a
+    BnzBa2Bn(bn_b, b, MAX_N_BYTES, CONST_SIGN_POSITIVE);
     mpz_import(gn_a, MAX_N_BYTES, 1, 1, 1, 0, a); // gn_a = a
     mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
 
@@ -469,11 +505,16 @@ void Test_CrossValidation_Custom(void){
     mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
 
     // convert:
-    BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
-    BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
-    BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
-    BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
-    BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+    ba_case1_sig = BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
+    ba_case3_sig = BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
+    ba_case5_sig = BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
+    ba_case7_q_sig = BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
+    ba_case7_r_sig = BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+    ba_case2_sig = mpz_sgn(gn_case2);
+    ba_case4_sig = mpz_sgn(gn_case4);
+    ba_case6_sig = mpz_sgn(gn_case6);
+    ba_case8_q_sig = mpz_sgn(gn_case8_q);
+    ba_case8_r_sig = mpz_sgn(gn_case8_r);
     ba_case2_siz = mpz_sizeinbase(gn_case2, 256);
     ba_case4_siz = mpz_sizeinbase(gn_case4, 256);
     ba_case6_siz = mpz_sizeinbase(gn_case6, 256);
@@ -486,46 +527,57 @@ void Test_CrossValidation_Custom(void){
     mpz_export((ba_case8_r + (MAX_N_BYTES - ba_case8_r_siz)), NULL, 1, 1, 1, 0, gn_case8_r); // ba_case8_r = gn_case8_r
 
     // compare:
-    if(memcmp(ba_case1, ba_case2, MAX_N_BYTES) != 0){
+    if(
+        (ba_case1_sig != ba_case2_sig) ||
+        (memcmp(ba_case1, ba_case2, MAX_N_BYTES) != 0)
+    ){
         // ba_case1 != ba_case2:
         errCase1++;
         //printf("error in addition        : i=%lu, j=%lu\n", i, j);
-        printf("ba_case1 = "); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
-        printf("ba_case2 = "); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
-        flg = 1;
-    }
-    if(memcmp(ba_case3, ba_case4, MAX_N_BYTES) != 0){
-        // ba_case3 != ba_case4:
-        errCase3++;
-        //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
-        printf("ba_case3 = "); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
-        printf("ba_case4 = "); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
-        flg = 1;
-    }
-    if(memcmp(ba_case5, ba_case6, MAX_N_BYTES) != 0){
-        // ba_case5 != ba_case6:
-        errCase5++;
-        //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
-        printf("ba_case5 = "); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
-        printf("ba_case6 = "); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
+        printf("ba_case1 = %s", (ba_case1_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
+        printf("ba_case2 = %s", (ba_case2_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
         flg = 1;
     }
     if(
+        (ba_case3_sig != ba_case4_sig) ||
+        (memcmp(ba_case3, ba_case4, MAX_N_BYTES) != 0)
+    ){
+        // ba_case3 != ba_case4:
+        errCase3++;
+        //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
+        printf("ba_case3 = %s", (ba_case3_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
+        printf("ba_case4 = %s", (ba_case4_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
+        flg = 1;
+    }
+    if(
+        (ba_case5_sig != ba_case6_sig) ||
+        (memcmp(ba_case5, ba_case6, MAX_N_BYTES) != 0)
+    ){
+        // ba_case5 != ba_case6:
+        errCase5++;
+        //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
+        printf("ba_case5 = %s", (ba_case5_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
+        printf("ba_case6 = %s", (ba_case6_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
+        flg = 1;
+    }
+    if(
+        (ba_case7_q_sig != ba_case8_q_sig) ||
         (memcmp(ba_case7_q, ba_case8_q, MAX_N_BYTES) != 0) ||
+        (ba_case7_r_sig != ba_case8_r_sig) ||
         (memcmp(ba_case7_r, ba_case8_r, MAX_N_BYTES) != 0)
     ){
         // ba_case7 != ba_case8:
         errCase7++;
         //printf("error in division  : i=%lu, j=%lu\n", i, j);
-        printf("ba_case7_q = "); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
-        printf("ba_case8_q = "); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
-        printf("ba_case7_r = "); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
-        printf("ba_case8_r = "); TestPrintHex(ba_case8_r, MAX_N_BYTES); printf("\n");
+        printf("ba_case7_q = %s", (ba_case7_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
+        printf("ba_case8_q = %s", (ba_case8_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
+        printf("ba_case7_r = %s", (ba_case7_r_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
+        printf("ba_case8_r = %s", (ba_case8_r_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case8_r, MAX_N_BYTES); printf("\n");
         flg = 1;
     }
     if(flg){
-        printf("a        = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
-        printf("b        = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
+        printf("a          = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
+        printf("b          = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
         printf("\n");
     }
 
@@ -558,8 +610,8 @@ void Test_CrossValidation_Custom(void){
 // main():
 int main(void){
     //Test_CrossValidation(10000000);
-    //Test_CrossValidation(1000000);
-    Test_CrossValidation_Custom();
+    Test_CrossValidation(10000000);
+    //Test_CrossValidation_Custom();
     return 0;
 }
 // end code
