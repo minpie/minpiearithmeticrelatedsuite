@@ -2,10 +2,10 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.09.18
+last modified: 2026.09.21
 author: minpie
 last modify: minpie
-version: 0.0.1
+version: 1.0.0
 
 */
 // start code:

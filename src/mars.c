@@ -2,10 +2,10 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.09.20
+last modified: 2026.09.21
 author: minpie
 last modify: minpie
-version: 0.0.1
+version: 1.0.0
 
 */
 // start code:
@@ -338,25 +338,25 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBits_LE(
     }
     // else:
     int32_t result = lenBaIn; // Convert bytes to bits
-    int32_t temp1 = -1;
-    uint8_t temp2 = 0;
+    int32_t t1 = -1;
+    uint8_t t2 = 0;
     for(int32_t i=0; i<lenBaIn; i++){
         if(*(pBaIn + lenBaIn - 1 - i)){
-            temp1 = i;
+            t1 = i;
             break;
         }else{
             result--;
         }
     }
 
-    if(!result || (temp1 == -1)){
+    if(!result || (t1 == -1)){
         return 0;
     }
 
-    temp2 = *(pBaIn + lenBaIn - 1 - temp1);
+    t2 = *(pBaIn + lenBaIn - 1 - t1);
     result = (result - 1) << 3;
-    while(temp2){
-        temp2 >>= 1;
+    while(t2){
+        t2 >>= 1;
         result++;
     }
 
@@ -394,24 +394,24 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBits_BE(
     }
     // else:
     int32_t result = lenBaIn; // Convert bytes to bits
-    int32_t temp1 = -1;
-    uint8_t temp2 = 0;
+    int32_t t1 = -1;
+    uint8_t t2 = 0;
     for(int32_t i=0; i<lenBaIn; i++){
         if(*(pBaIn + i)){
-            temp1 = i;
+            t1 = i;
             break;
         }else{
             result--;
         }
     }
-    if(!result || (temp1 == -1)){
+    if(!result || (t1 == -1)){
         return 0;
     }
 
-    temp2 = *(pBaIn + temp1);
+    t2 = *(pBaIn + t1);
     result = (result - 1) * 8;
-    while(temp2){
-        temp2 >>= 1;
+    while(t2){
+        t2 >>= 1;
         result++;
     }
 
@@ -538,10 +538,14 @@ MARS_API_EXPORT void BnzBa2Bn(
     // else:
     int32_t digitsInBytes = 0;
     int32_t neededWords = 0;
+    bnword_t * newData = NULL;
     digitsInBytes = BnhGetDigitsInBytes_BE(pBaIn, lenBaIn); // get digits in bytes
     neededWords = (digitsInBytes + (sizeof(bnword_t) - 1)) / sizeof(bnword_t); // get needed words from needed bytes
     neededWords = MAX(neededWords, 1);
-    pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reallocate words
+
+    newData = (bnword_t *)malloc((sizeof(bnword_t) * neededWords));
+    free(pOut->pData);
+    pOut->pData = newData;
     if(!(pOut->pData)){
         // exception: failed to realloc()
         return;
@@ -744,7 +748,11 @@ MARS_API_EXPORT void BnzAssign(
         return;
     }
     // else:
-    pOut->pData = realloc((void *)(pOut->pData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    bnword_t * newData = NULL;
+    newData = (bnword_t *)malloc((sizeof(bnword_t) * ABS(pIn->allocated)));
+    BnhZeroize((void *)(newData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    free(pOut->pData);
+    pOut->pData = newData;
     BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * ABS(pIn->allocated)));
     pOut->allocated = pIn->allocated;
 
@@ -867,27 +875,26 @@ MARS_API_EXPORT int32_t BnzBitwiseOr(
     }
 
     // else:
-    bnzptr_t temp1 = NULL;
-    bnzptr_t temp2 = NULL;
-    bnz_t temp3;
-    BnzInit(temp3);
+    bnzptr_t t1 = NULL;
+    bnzptr_t t2 = NULL;
+    bnz_t t3;
+    BnzInit(t3);
     if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
-        temp1 = pIn1;
-        temp2 = pIn2;
+        t1 = pIn1;
+        t2 = pIn2;
     }else{
-        temp1 = pIn2;
-        temp2 = pIn1;
+        t1 = pIn2;
+        t2 = pIn1;
     }
 
-    BnzAssign(temp3, temp1);
-
-    for(int32_t i=0; i<ABS(temp2->allocated); i++){
-        *((temp3->pData) + i) = *((temp1->pData) + i) | *((temp2->pData) + i);
+    BnzAssign(t3, t1);
+    for(int32_t i=0; i<ABS(t2->allocated); i++){
+        *((t3->pData) + i) = *((t1->pData) + i) | *((t2->pData) + i);
     }
-    BnzAssign(pOut, temp3);
+    BnzAssign(pOut, t3);
 
     // return:
-    BnzFinal(temp3);
+    BnzFinal(t3);
     return 0;
 }
 
@@ -925,28 +932,27 @@ MARS_API_EXPORT int32_t BnzBitwiseXor(
     }
 
     // else:
-    bnzptr_t temp1 = NULL;
-    bnzptr_t temp2 = NULL;
-    bnz_t temp3;
-    BnzInit(temp3);
+    bnzptr_t t1 = NULL;
+    bnzptr_t t2 = NULL;
+    bnz_t t3;
+    BnzInit(t3);
     if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
-        temp1 = pIn1;
-        temp2 = pIn2;
+        t1 = pIn1;
+        t2 = pIn2;
     }else{
-        temp1 = pIn2;
-        temp2 = pIn1;
+        t1 = pIn2;
+        t2 = pIn1;
     }
 
-    BnzAssign(temp3, temp1);
-
-    for(int32_t i=0; i<ABS(temp2->allocated); i++){
-        *((temp3->pData) + i) = *((temp1->pData) + i) ^ *((temp2->pData) + i);
+    BnzAssign(t3, t1);
+    for(int32_t i=0; i<ABS(t2->allocated); i++){
+        *((t3->pData) + i) = *((t1->pData) + i) ^ *((t2->pData) + i);
     }
-    BnzAssign(pOut, temp3);
+    BnzAssign(pOut, t3);
 
 
     // return:
-    BnzFinal(temp3);
+    BnzFinal(t3);
     return 0;
 }
 
@@ -981,7 +987,15 @@ MARS_API_EXPORT int32_t BnzBitwiseNot(
     }
 
     // else:
+    bnz_t t1;
+    BnzInit(t1);
+    for(int32_t i=0; i<(ABS(pIn->allocated)); i++){
+        *((t1->pData) + i) = ~(*((pIn->pData) + i));
+    }
+    BnzAssign(pOut, t1);
 
+    // return:
+    BnzFinal(t1);
     return 0;
 }
 
@@ -1019,16 +1033,16 @@ MARS_API_EXPORT int32_t BnzBitwiseLeftShift(
     }
 
     // else:
-    bnz_t temp1;
-    BnzInit(temp1);
+    bnz_t t1;
+    BnzInit(t1);
 
-    BnzAssign(temp1, pIn);
+    BnzAssign(t1, pIn);
     for(int32_t i=0; i<shift; i++){
-        BnzAdd(temp1, temp1, temp1); // temp1 = temp1 << 1
+        BnzAdd(t1, t1, t1); // t1 = t1 << 1
     }
-    BnzAssign(pOut, temp1);
+    BnzAssign(pOut, t1);
     
-    BnzFinal(temp1);
+    BnzFinal(t1);
     return 0;
 }
 
@@ -1060,9 +1074,6 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     - nope
     */
     //
-    
-    //
-    ///*
     if((!pOut) || (!pIn)){
         // exception: pOut is NULL OR pIn is NULL
         return 0;
@@ -1074,19 +1085,18 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     }
 
     // else:
-    bnz_t temp1;
+    bnz_t t1;
     bnword_t * newData = NULL;
     int32_t orgSign = 0;
-    int32_t nonZeroIdx = 0;
+    int32_t nonZeroIdx = -1;
 
-    BnzInit(temp1);
+    BnzInit(t1);
     orgSign = BnzSgn(pIn);
-
     newData = (bnword_t *)malloc((sizeof(bnword_t) * ABS(pIn->allocated)));
     BnhZeroize((void *)(newData), (sizeof(bnword_t) * ABS(pIn->allocated)));
-    free(temp1->pData);
-    temp1->pData = newData;
-    temp1->allocated = ABS(pIn->allocated);
+    free(t1->pData);
+    t1->pData = newData;
+    t1->allocated = ABS(pIn->allocated);
 
     for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
@@ -1095,78 +1105,41 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
         if(destidx < 0){
             break;
         }
-        *((temp1->pData) + destidx) |= *((pIn->pData) + srcidx) >> (shift % (sizeof(bnword_t) << 3));
+        *((t1->pData) + destidx) |= *((pIn->pData) + srcidx) >> (shift % (sizeof(bnword_t) << 3));
         if(destidx){
             if((shift % (sizeof(bnword_t) << 3))){
-                *((temp1->pData) + destidx - 1) |= *((pIn->pData) + srcidx) << ((sizeof(bnword_t) << 3) - (shift % (sizeof(bnword_t) << 3)));
+                *((t1->pData) + destidx - 1) |= *((pIn->pData) + srcidx) << ((sizeof(bnword_t) << 3) - (shift % (sizeof(bnword_t) << 3)));
             }
         }
     }
 
-    nonZeroIdx = -1;
-    for(int32_t i=(ABS(temp1->allocated) - 1); i>=0; i--){
-        if(*((temp1->pData) + i)){
-            nonZeroIdx = i;
+    for(int32_t i=(ABS(t1->allocated) - 1); i>=0; i--){
+        if(*((t1->pData) + i)){
+            if(i == (ABS(t1->allocated) - 1)){
+                nonZeroIdx = -2;
+            }else{
+                nonZeroIdx = i;
+            }
             break;
         }
     }
-    if(nonZeroIdx != -1){
+    if(nonZeroIdx == -2){
+        t1->allocated = orgSign * (t1->allocated);
+        BnzAssign(pOut, t1);
+    }else if(nonZeroIdx != -1){
         newData = (bnword_t *)malloc((sizeof(bnword_t) * (nonZeroIdx + 1)));
         BnhZeroize((void *)(newData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
-        BnhMemcpy((void *)(newData), (void *)(temp1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
-        free(temp1->pData);
-        temp1->pData = newData;
-        temp1->allocated = orgSign * (nonZeroIdx + 1);
-        BnzAssign(pOut, temp1);
+        BnhMemcpy((void *)(newData), (void *)(t1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+        free(t1->pData);
+        t1->pData = newData;
+        t1->allocated = orgSign * (nonZeroIdx + 1);
+        BnzAssign(pOut, t1);
     }else{
         BnzAssign(pOut, bn_zero);
     }
-    
 
-    BnzFinal(temp1);
+    BnzFinal(t1);
     return 0;
-    //*/
-    //
-
-
-    //
-    /*
-    if((!pOut) || (!pIn)){
-        // exception: pOut is NULL OR pIn is NULL
-        return 0;
-    }
-
-    // else:
-    bnz_t temp1;
-    bnword_t * newData = NULL;
-    BnzInit(temp1);
-
-    BnzAssign(temp1, pIn);
-    for(int32_t i=0; i<(temp1->allocated); i++){
-        *((temp1->pData) + i) >>= shift;
-        if(i < ((temp1->allocated) - 1)){
-            *((temp1->pData) + i) |= (*((temp1->pData) + i + 1) << ((sizeof(bnword_t) * 8) - shift));
-        }
-        temp1->used = BnhGetDigitsInBytes_LE((uint8_t *)(temp1->pData), (sizeof(bnword_t) * temp1->allocated));
-    } // fixed
-    for(int32_t i=(temp1->allocated) - 1; i>0; i--){
-        if(*((temp1->pData) + i)){
-            break;
-        }
-        newData = (bnword_t *)malloc((sizeof(bnword_t) * i));
-        BnhZeroize((void *)(newData), (sizeof(bnword_t) * i));
-        BnhMemcpy((void *)(newData), (void *)(temp1->pData), (sizeof(bnword_t) * i));
-        free(temp1->pData);
-        temp1->pData = newData;
-        temp1->allocated = i;
-        temp1->used = BnhGetDigitsInBytes_LE((uint8_t *)(temp1->pData), (sizeof(bnword_t) * temp1->allocated));
-    }
-    BnzAssign(pOut, temp1);
-
-    BnzFinal(temp1);
-    return 0;
-    //*/
-    //
 }
 
 MARS_API_EXPORT int32_t BnzAdd(
@@ -1298,12 +1271,12 @@ MARS_API_EXPORT int32_t BnzAdd(
         BnzInit(t1);
 
         if(BnzSgn(pIn1) > BnzSgn(pIn2)){
-            // pIn1: 양수 -> pIn2를 양수로 바꾸어 덧셈:
+            // pIn1: 양수 -> pIn2를 양수로 바꾸어 뺄셈:
             BnzAssign(t1, pIn2);
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
             c = BnzSub(pOut, pIn1, t1);
         }else{
-            // pIn2: 양수 -> pIn1를 양수로 바꾸어 덧셈:
+            // pIn2: 양수 -> pIn1를 양수로 바꾸어 뺄셈:
             BnzAssign(t1, pIn1);
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
             c = BnzSub(pOut, pIn2, t1);
@@ -1355,6 +1328,7 @@ MARS_API_EXPORT int32_t BnzSub(
     int32_t tempIdx = 0;
     int32_t compareResult = 0;
     int32_t estimatedWords = 0;
+    int32_t nonZeroIdx = -1;
     bnz_t t1;
     bnz_t tBig;
     bnz_t tSmall;
@@ -1427,21 +1401,31 @@ MARS_API_EXPORT int32_t BnzSub(
             *((t1->pData) + tempIdx) = s;
         }
 
+        // remove zero filled word:
+        for(int32_t i=(ABS(t1->allocated) - 1); i>=0; i--){
+            if(*((t1->pData) + i)){
+                nonZeroIdx = i;
+                break;
+            }
+        }
+        if(nonZeroIdx != -1){
+            newData = (bnword_t *)malloc((sizeof(bnword_t) * (nonZeroIdx + 1)));
+            BnhZeroize((void *)(newData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+            BnhMemcpy((void *)(newData), (void *)(t1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+            free(t1->pData);
+            t1->pData = newData;
+            t1->allocated = (nonZeroIdx + 1);
+        }
+
         if(pSmall == pIn1){
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
         }
 
-        //
+        // t1 to pOut:
+        BnzAssign(pOut, t1);
         BnzFinal(tBig);
         BnzFinal(tSmall);
-
-        // t1 to pOut:
-        oldData = pOut->pData;
-        if(oldData){
-            free(oldData);
-        }
-        pOut->pData = t1->pData;
-        pOut->allocated = t1->allocated;
+        BnzFinal(t1);
     }else{
         // case 2. pIn1.sign == pIn2.sign: 절댓값 덧셈 수행
         b = BnzAdd(pOut, pIn1, pIn2);
@@ -1505,6 +1489,7 @@ MARS_API_EXPORT int32_t BnzMul(
         }
     }
     BnzAssign(pOut, bn_result); // pOut = bn_result
+    
     // clear:
     BnzFinal(bn_temp);
     BnzFinal(bn_result);
@@ -1570,6 +1555,66 @@ MARS_API_EXPORT int32_t BnzDiv(
         return 0;
     }
     // else:
+    if(BnzCompare(pIn2, bn_zero) == 0){
+        // exception: pIn2 == 0
+        return 0;
+    }
+
+    //
+    ///*
+    // 구현 2: restoring division
+
+    //R := N
+    //D := D << n            -- R and D need twice the word width of N and Q
+    //for i := n − 1 .. 0 do  -- For example 31..0 for 32 bits
+    //R := 2 * R − D          -- Trial subtraction from shifted value (multiplication by 2 is a shift in binary representation)
+    //if R >= 0 then
+    //    q(i) := 1          -- Result-bit 1
+    //else
+    //    q(i) := 0          -- Result-bit 0
+    //    R := R + D         -- New partial remainder is (restored) shifted value
+    //end
+    //end
+    //
+    //-- Where: N = numerator, D = denominator, n = #bits, R = partial remainder, q(i) = bit #i of quotient
+    //
+
+    bnz_t bn_q, bn_r, bn_d, bn_t1;
+    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated)));
+
+    BnzInit(bn_q);
+    BnzInit(bn_r);
+    BnzInit(bn_d);
+    BnzInit(bn_t1);
+    
+    BnzAssign(bn_t1, bn_one); // bn_t1 = 1
+    BnzBitwiseLeftShift(bn_t1, bn_t1, n-1); // bn_t1 = 2 ^ (n-1)
+
+    BnzAssign(bn_r, pIn1); // bn_r = pIn1
+    BnzBitwiseLeftShift(bn_d, pIn2, n); // bn_d = pIn2 << n
+    for(int32_t i=(n-1); i>=0; i--){
+        // bn_r = 2 * bn_r - bn_d :
+        BnzAdd(bn_r, bn_r, bn_r); // bn_r = 2 * bn_r
+        BnzSub(bn_r, bn_r, bn_d); // bn_r = bn_r - bn_d
+
+        if(BnzCompare(bn_r, bn_zero) >= 0){
+            //BnzBitwiseOr(bn_q, bn_q, bn_t1); // q[bit i] = 1
+            BnzAdd(bn_q, bn_q, bn_t1); // q[bit i] = 1
+        }else{
+            BnzAdd(bn_r, bn_r, bn_d); // bn_r = bn_r + bn_d
+        }
+        BnzBitwiseRightShift(bn_t1, bn_t1, 1); // bn_t1 = bn_t1 >> 1
+    }
+    BnzBitwiseRightShift(bn_r, bn_r, n);
+    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
+    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
+    
+    BnzFinal(bn_q);
+    BnzFinal(bn_r);
+    BnzFinal(bn_d);
+    BnzFinal(bn_t1);
+    //*/
+    //
 
     /*
     // 구현 1: naive 구현 1: 너무 느림
@@ -1595,78 +1640,6 @@ MARS_API_EXPORT int32_t BnzDiv(
     BnzFinal(bn_q);
     BnzFinal(bn_r);    
     */
-    //
-
-
-    //
-    ///*
-    // 구현 2: restoring division
-
-    //R := N
-    //D := D << n            -- R and D need twice the word width of N and Q
-    //for i := n − 1 .. 0 do  -- For example 31..0 for 32 bits
-    //R := 2 * R − D          -- Trial subtraction from shifted value (multiplication by 2 is a shift in binary representation)
-    //if R >= 0 then
-    //    q(i) := 1          -- Result-bit 1
-    //else
-    //    q(i) := 0          -- Result-bit 0
-    //    R := R + D         -- New partial remainder is (restored) shifted value
-    //end
-    //end
-    //
-    //-- Where: N = numerator, D = denominator, n = #bits, R = partial remainder, q(i) = bit #i of quotient
-
-    if(BnzCompare(pIn2, bn_zero) == 0){
-        // exception: pIn2 == 0
-        return 0;
-    }
-
-    bnz_t bn_q, bn_r, bn_d, bn_temp1;
-    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated)));
-    printf("n = %d\n", n);
-
-    BnzInit(bn_q);
-    BnzInit(bn_r);
-    BnzInit(bn_d);
-    BnzInit(bn_temp1);
-
-    BnzAssign(bn_temp1, bn_one); // bn_temp1 = 1
-    BnzBitwiseLeftShift(bn_temp1, bn_temp1, n-1); // bn_temp1 = 2 ^ (n-1)
-
-    BnzAssign(bn_r, pIn1); // bn_r = pIn1
-    BnzBitwiseLeftShift(bn_d, pIn2, n); // bn_d = pIn2 << n
-    for(int32_t i=(n-1); i>=0; i--){
-        printf("i = %d\n", i);
-        // bn_r = 2 * bn_r - bn_d :
-        BnzAdd(bn_r, bn_r, bn_r); // bn_r = 2 * bn_r
-        printf("[2]bn_r     = "); DbgPrintBnz(bn_r); printf("\n");
-        BnzSub(bn_r, bn_r, bn_d); // bn_r = bn_r - bn_d
-        printf("[2]bn_r     = "); DbgPrintBnz(bn_r); printf("\n");
-
-        if(BnzCompare(bn_r, bn_zero) >= 0){
-            //BnzBitwiseOr(bn_q, bn_q, bn_temp1); // q[bit i] = 1
-            BnzAdd(bn_q, bn_q, bn_temp1); // q[bit i] = 1
-            printf("bn_r >= 0\n");
-        }else{
-            BnzAdd(bn_r, bn_r, bn_d); // bn_r = bn_r + bn_d
-            printf("bn_r < 0\n");
-        }
-        printf("[3]bn_q     = "); DbgPrintBnz(bn_q); printf("\n");
-        printf("[4]bn_r     = "); DbgPrintBnz(bn_r); printf("\n");
-        printf("[5]bn_temp1 = "); DbgPrintBnz(bn_temp1); printf("\n");
-        printf("\n");
-        BnzBitwiseRightShift(bn_temp1, bn_temp1, 1); // bn_temp1 = bn_temp1 >> 1
-    }
-    BnzBitwiseRightShift(bn_r, bn_r, n);
-    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
-    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
-
-    
-    BnzFinal(bn_q);
-    BnzFinal(bn_r);
-    BnzFinal(bn_d);
-    BnzFinal(bn_temp1);
-    //*/
     //
 
     // end:

@@ -2,10 +2,10 @@
 example7.c
 
 created: 2026.07.07
-last modified: 2026.09.20
+last modified: 2026.09.21
 author: minpie
 last modify: minpie
-version: 0.0.1
+version: 1.0.0
 
 */
 // start code:
@@ -99,6 +99,7 @@ void Test_CrossValidation(uint64_t n){
     uint8_t ba_case7_r[MAX_N_BYTES] = {0, };
     uint8_t ba_case8_q[MAX_N_BYTES] = {0, };
     uint8_t ba_case8_r[MAX_N_BYTES] = {0, };
+    uint8_t ba_zero[MAX_N_BYTES] = {0, };
     int ba_case2_siz = 0;
     int ba_case4_siz = 0;
     int ba_case6_siz = 0;
@@ -150,8 +151,15 @@ void Test_CrossValidation(uint64_t n){
         uint64_t siz_b = 0;
         siz_a = (rand() % (MAX_N_BYTES / 2));
         siz_b = (rand() % (MAX_N_BYTES / 2));
-        GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
-        GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
+        while(
+            (memcmp(a, ba_zero, MAX_N_BYTES) == 0) ||
+            (memcmp(b, ba_zero, MAX_N_BYTES) == 0)
+        ){
+            GetRandom((a + (MAX_N_BYTES - siz_a)), siz_a);
+            GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
+        }
+
+
 
         //
         BnzBa2Bn(bn_a, a, MAX_N_BYTES, 1);
@@ -170,7 +178,7 @@ void Test_CrossValidation(uint64_t n){
         BnzMul(bn_case5, bn_a, bn_b); // bn_case5 = bn_a * bn_b
 
         // calc case7:
-        //BnzDiv(bn_case7_q, bn_case7_r, bn_a, bn_b); // bn_a / bn_b, q=bn_case7_q, r=bn_case7_r
+        BnzDiv(bn_case7_q, bn_case7_r, bn_a, bn_b); // bn_a / bn_b, q=bn_case7_q, r=bn_case7_r
 
         // calc case2:
         mpz_add(gn_case2, gn_a, gn_b); // gn_case2 = gn_a + gn_b
@@ -182,7 +190,7 @@ void Test_CrossValidation(uint64_t n){
         mpz_mul(gn_case6, gn_a, gn_b); // gn_case6 = gn_a * gn_b
 
         // calc case8:
-        //mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
+        mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
 
         // convert:
         ba_case1_sig = BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
@@ -609,8 +617,8 @@ void Test_CrossValidation_Custom(void){
 
 // main():
 int main(void){
-    //Test_CrossValidation(10000000);
     Test_CrossValidation(10000000);
+    //Test_CrossValidation(10000);
     //Test_CrossValidation_Custom();
     return 0;
 }
