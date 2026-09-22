@@ -1,8 +1,8 @@
 /*
-example7.c
+0_check_correct.c
 
-created: 2026.07.07
-last modified: 2026.09.21
+created: 2026.09.22
+last modified: 2026.09.22
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -38,24 +38,24 @@ void GetRandom(uint8_t *pOut, uint32_t nOfBytes){
     return;
 }
 
-void Func_Bn2Gn(mpz_t gnOut, bnz_t bnIn){
-    // bnz_t -> mpz_t
+void Func_Marsz_2Gn(mpz_t gnOut, marsz_t bnIn){
+    // marsz_t -> mpz_t
     uint8_t tempArr[MAX_N_BYTES] = {0,};
-    BnzBn2Ba(tempArr, MAX_N_BYTES, bnIn); // tempArr = bnIn
+    Marsz_Bn2Ba(tempArr, MAX_N_BYTES, bnIn); // tempArr = bnIn
     mpz_import(gnOut, MAX_N_BYTES, 1, 1, 1, 0, tempArr); // gnOut = tempArr    
     //
     return;
 }
 
-void Func_Gn2Bn(bnz_t bnOut, mpz_t gnIn){
-    // mpz_t -> bnz_t
+void Func_Gn2Marsz_(marsz_t bnOut, mpz_t gnIn){
+    // mpz_t -> marsz_t
     uint8_t tempArr[MAX_N_BYTES] = {0,};
     int32_t tempSiz = 0;
     int32_t tempSign = 0;
     tempSiz = mpz_sizeinbase(gnIn, 256);
     tempSign = ((mpz_sgn(gnIn) < 0) ? -1 : 1);
     mpz_export((tempArr + (MAX_N_BYTES - tempSiz)), NULL, 1, 1, -1, 0, gnIn); // tempArr = gnIn
-    BnzBa2Bn(bnOut, tempArr, MAX_N_BYTES, tempSign); // bnOut = tempArr
+    Marsz_Ba2Bn(bnOut, tempArr, MAX_N_BYTES, tempSign); // bnOut = tempArr
     //
     return;
 }
@@ -63,10 +63,10 @@ void Func_Gn2Bn(bnz_t bnOut, mpz_t gnIn){
 void Test_CrossValidation(uint64_t n){
     /*
     검증 대상:
-    case 1. bn_a + bn_b
-    case 3. bn_a - bn_b
-    case 5. bn_a * bn_b
-    case 7. bn_a / bn_b
+    case 1. marsn_a + marsn_b
+    case 3. marsn_a - marsn_b
+    case 5. marsn_a * marsn_b
+    case 7. marsn_a / marsn_b
     
     검증용:
     case 2. gn_a + gn_b
@@ -85,8 +85,8 @@ void Test_CrossValidation(uint64_t n){
     //
     mpz_t gn_a, gn_b;
     mpz_t gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
-    bnz_t bn_a, bn_b;
-    bnz_t bn_case1, bn_case3, bn_case5, bn_case7_q, bn_case7_r;
+    marsz_t marsn_a, marsn_b;
+    marsz_t marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
     uint8_t a[MAX_N_BYTES] = {0, };
     uint8_t b[MAX_N_BYTES] = {0, };
     uint8_t ba_case1[MAX_N_BYTES] = {0, };
@@ -118,13 +118,13 @@ void Test_CrossValidation(uint64_t n){
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    BnzInit(bn_a);
-    BnzInit(bn_b);
-    BnzInit(bn_case1);
-    BnzInit(bn_case3);
-    BnzInit(bn_case5);
-    BnzInit(bn_case7_q);
-    BnzInit(bn_case7_r);
+    Marsz_Init(marsn_a);
+    Marsz_Init(marsn_b);
+    Marsz_Init(marsn_case1);
+    Marsz_Init(marsn_case3);
+    Marsz_Init(marsn_case5);
+    Marsz_Init(marsn_case7_q);
+    Marsz_Init(marsn_case7_r);
 
     srand(time(NULL));
     //srand(0x13579);
@@ -162,23 +162,23 @@ void Test_CrossValidation(uint64_t n){
 
 
         //
-        BnzBa2Bn(bn_a, a, MAX_N_BYTES, 1);
-        BnzBa2Bn(bn_b, b, MAX_N_BYTES, 1);
+        Marsz_Ba2Bn(marsn_a, a, MAX_N_BYTES, 1);
+        Marsz_Ba2Bn(marsn_b, b, MAX_N_BYTES, 1);
         mpz_import(gn_a, MAX_N_BYTES, 1, 1, 1, 0, a); // gn_a = a
         mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
 
 
         // calc case1:
-        BnzAdd(bn_case1, bn_a, bn_b); // bn_case1 = bn_a + bn_b
+        Marsz_Add(marsn_case1, marsn_a, marsn_b); // marsn_case1 = marsn_a + marsn_b
 
         // calc case3:
-        BnzSub(bn_case3, bn_a, bn_b); // bn_case3 = bn_a - bn_b
+        Marsz_Sub(marsn_case3, marsn_a, marsn_b); // marsn_case3 = marsn_a - marsn_b
 
         // calc case5:
-        BnzMul(bn_case5, bn_a, bn_b); // bn_case5 = bn_a * bn_b
+        Marsz_Mul(marsn_case5, marsn_a, marsn_b); // marsn_case5 = marsn_a * marsn_b
 
         // calc case7:
-        BnzDiv(bn_case7_q, bn_case7_r, bn_a, bn_b); // bn_a / bn_b, q=bn_case7_q, r=bn_case7_r
+        Marsz_Div(marsn_case7_q, marsn_case7_r, marsn_a, marsn_b); // marsn_a / marsn_b, q=marsn_case7_q, r=marsn_case7_r
 
         // calc case2:
         mpz_add(gn_case2, gn_a, gn_b); // gn_case2 = gn_a + gn_b
@@ -193,11 +193,11 @@ void Test_CrossValidation(uint64_t n){
         mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
 
         // convert:
-        ba_case1_sig = BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
-        ba_case3_sig = BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
-        ba_case5_sig = BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
-        ba_case7_q_sig = BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
-        ba_case7_r_sig = BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+        ba_case1_sig = Marsz_Bn2Ba(ba_case1, MAX_N_BYTES, marsn_case1);
+        ba_case3_sig = Marsz_Bn2Ba(ba_case3, MAX_N_BYTES, marsn_case3);
+        ba_case5_sig = Marsz_Bn2Ba(ba_case5, MAX_N_BYTES, marsn_case5);
+        ba_case7_q_sig = Marsz_Bn2Ba(ba_case7_q, MAX_N_BYTES, marsn_case7_q);
+        ba_case7_r_sig = Marsz_Bn2Ba(ba_case7_r, MAX_N_BYTES, marsn_case7_r);
         ba_case2_sig = ((mpz_sgn(gn_case2) < 0) ? -1 : 1);
         ba_case4_sig = ((mpz_sgn(gn_case4) < 0) ? -1 : 1);
         ba_case6_sig = ((mpz_sgn(gn_case6) < 0) ? -1 : 1);
@@ -273,13 +273,13 @@ void Test_CrossValidation(uint64_t n){
 
     // clear:
     mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    BnzFinal(bn_a);
-    BnzFinal(bn_b);
-    BnzFinal(bn_case1);
-    BnzFinal(bn_case3);
-    BnzFinal(bn_case5);
-    BnzFinal(bn_case7_q);
-    BnzFinal(bn_case7_r);
+    Marsz_Final(marsn_a);
+    Marsz_Final(marsn_b);
+    Marsz_Final(marsn_case1);
+    Marsz_Final(marsn_case3);
+    Marsz_Final(marsn_case5);
+    Marsz_Final(marsn_case7_q);
+    Marsz_Final(marsn_case7_r);
 
     // print result:
     printf("Total case                 = %lu\n", (n));
@@ -299,10 +299,10 @@ void Test_CrossValidation(uint64_t n){
 void Test_CrossValidation_Custom(void){
     /*
     검증 대상:
-    case 1. bn_a + bn_b
-    case 3. bn_a - bn_b
-    case 5. bn_a * bn_b
-    case 7. bn_a / bn_b
+    case 1. marsn_a + marsn_b
+    case 3. marsn_a - marsn_b
+    case 5. marsn_a * marsn_b
+    case 7. marsn_a / marsn_b
     
     검증용:
     case 2. gn_a + gn_b
@@ -411,8 +411,8 @@ void Test_CrossValidation_Custom(void){
     //
     mpz_t gn_a, gn_b;
     mpz_t gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
-    bnz_t bn_a, bn_b;
-    bnz_t bn_case1, bn_case3, bn_case5, bn_case7_q, bn_case7_r;
+    marsz_t marsn_a, marsn_b;
+    marsz_t marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
     uint8_t ba_case1[MAX_N_BYTES] = {0, };
     uint8_t ba_case2[MAX_N_BYTES] = {0, };
     uint8_t ba_case3[MAX_N_BYTES] = {0, };
@@ -441,13 +441,13 @@ void Test_CrossValidation_Custom(void){
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    BnzInit(bn_a);
-    BnzInit(bn_b);
-    BnzInit(bn_case1);
-    BnzInit(bn_case3);
-    BnzInit(bn_case5);
-    BnzInit(bn_case7_q);
-    BnzInit(bn_case7_r);
+    Marsz_Init(marsn_a);
+    Marsz_Init(marsn_b);
+    Marsz_Init(marsn_case1);
+    Marsz_Init(marsn_case3);
+    Marsz_Init(marsn_case5);
+    Marsz_Init(marsn_case7_q);
+    Marsz_Init(marsn_case7_r);
 
 
     srand(1787809497);
@@ -482,23 +482,23 @@ void Test_CrossValidation_Custom(void){
     GetRandom((b + (MAX_N_BYTES - siz_b)), siz_b);
 
     //
-    BnzBa2Bn(bn_a, a, MAX_N_BYTES, CONST_SIGN_POSITIVE); // bn_a = a
-    BnzBa2Bn(bn_b, b, MAX_N_BYTES, CONST_SIGN_POSITIVE);
+    Marsz_Ba2Bn(marsn_a, a, MAX_N_BYTES, CONST_SIGN_POSITIVE); // marsn_a = a
+    Marsz_Ba2Bn(marsn_b, b, MAX_N_BYTES, CONST_SIGN_POSITIVE);
     mpz_import(gn_a, MAX_N_BYTES, 1, 1, 1, 0, a); // gn_a = a
     mpz_import(gn_b, MAX_N_BYTES, 1, 1, 1, 0, b); // gn_b = b
 
 
     // calc case1:
-    BnzAdd(bn_case1, bn_a, bn_b); // bn_case1 = bn_a + bn_b
+    Marsz_Add(marsn_case1, marsn_a, marsn_b); // marsn_case1 = marsn_a + marsn_b
 
     // calc case3:
-    BnzSub(bn_case3, bn_a, bn_b); // bn_case3 = bn_a - bn_b
+    Marsz_Sub(marsn_case3, marsn_a, marsn_b); // marsn_case3 = marsn_a - marsn_b
 
     // calc case5:
-    BnzMul(bn_case5, bn_a, bn_b); // bn_case5 = bn_a * bn_b
+    Marsz_Mul(marsn_case5, marsn_a, marsn_b); // marsn_case5 = marsn_a * marsn_b
 
     // calc case7:
-    BnzDiv(bn_case7_q, bn_case7_r, bn_a, bn_b); // bn_a / bn_b, q=bn_case7_q, r=bn_case7_r
+    Marsz_Div(marsn_case7_q, marsn_case7_r, marsn_a, marsn_b); // marsn_a / marsn_b, q=marsn_case7_q, r=marsn_case7_r
 
     // calc case2:
     mpz_add(gn_case2, gn_a, gn_b); // gn_case2 = gn_a + gn_b
@@ -513,11 +513,11 @@ void Test_CrossValidation_Custom(void){
     mpz_fdiv_qr(gn_case8_q, gn_case8_r, gn_a, gn_b); // gn_a / gn_b, q=gn_case8_q, r=gn_case8_r
 
     // convert:
-    ba_case1_sig = BnzBn2Ba(ba_case1, MAX_N_BYTES, bn_case1);
-    ba_case3_sig = BnzBn2Ba(ba_case3, MAX_N_BYTES, bn_case3);
-    ba_case5_sig = BnzBn2Ba(ba_case5, MAX_N_BYTES, bn_case5);
-    ba_case7_q_sig = BnzBn2Ba(ba_case7_q, MAX_N_BYTES, bn_case7_q);
-    ba_case7_r_sig = BnzBn2Ba(ba_case7_r, MAX_N_BYTES, bn_case7_r);
+    ba_case1_sig = Marsz_Bn2Ba(ba_case1, MAX_N_BYTES, marsn_case1);
+    ba_case3_sig = Marsz_Bn2Ba(ba_case3, MAX_N_BYTES, marsn_case3);
+    ba_case5_sig = Marsz_Bn2Ba(ba_case5, MAX_N_BYTES, marsn_case5);
+    ba_case7_q_sig = Marsz_Bn2Ba(ba_case7_q, MAX_N_BYTES, marsn_case7_q);
+    ba_case7_r_sig = Marsz_Bn2Ba(ba_case7_r, MAX_N_BYTES, marsn_case7_r);
     ba_case2_sig = mpz_sgn(gn_case2);
     ba_case4_sig = mpz_sgn(gn_case4);
     ba_case6_sig = mpz_sgn(gn_case6);
@@ -592,13 +592,13 @@ void Test_CrossValidation_Custom(void){
 
     // clear:
     mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    BnzFinal(bn_a);
-    BnzFinal(bn_b);
-    BnzFinal(bn_case1);
-    BnzFinal(bn_case3);
-    BnzFinal(bn_case5);
-    BnzFinal(bn_case7_q);
-    BnzFinal(bn_case7_r);
+    Marsz_Final(marsn_a);
+    Marsz_Final(marsn_b);
+    Marsz_Final(marsn_case1);
+    Marsz_Final(marsn_case3);
+    Marsz_Final(marsn_case5);
+    Marsz_Final(marsn_case7_q);
+    Marsz_Final(marsn_case7_r);
 
     // print result:
     printf("Total case                 = %lu\n", (n));
@@ -617,8 +617,8 @@ void Test_CrossValidation_Custom(void){
 
 // main():
 int main(void){
-    Test_CrossValidation(10000000);
-    //Test_CrossValidation(10000);
+    //Test_CrossValidation(10000000);
+    Test_CrossValidation(1000);
     //Test_CrossValidation_Custom();
     return 0;
 }

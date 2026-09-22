@@ -1,8 +1,0 @@
-#
-gcc \
--I inc \
--L lib \
--l mars \
--lm \
--o example/example1/example1 \
-example/example1/example1.c

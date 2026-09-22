@@ -1,0 +1,9 @@
+#
+gcc \
+-I inc \
+-L lib \
+-l mars \
+-lm \
+-o example/0_check_correct/0_check_correct \
+example/0_check_correct/0_check_correct.c \
+-lgmp

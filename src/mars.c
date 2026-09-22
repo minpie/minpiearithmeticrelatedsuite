@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.09.21
+last modified: 2026.09.22
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -13,19 +13,19 @@ version: 1.0.0
 #include "mars.h"
 
 // global variable:
-const bnword_t _bnword_zero[CONST_SIZE_DEFAULT_BNZ_WORDS] = {0, };
-const bnword_t _bnword_one[CONST_SIZE_DEFAULT_BNZ_WORDS] = {1, };
-const bnz_t bn_zero = {
+const marsword_t _marsword_zero[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {0, };
+const marsword_t _marsword_one[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {1, };
+const marsz_t mars_zero = {
     // pData:
-    _bnword_zero,
+    _marsword_zero,
     // allocated:
-    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS)
+    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
 }; // constant for 0
-const bnz_t bn_one = {
+const marsz_t mars_one = {
     // pData:
-    _bnword_one,
+    _marsword_one,
     // allocated:
-    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS)
+    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
 }; // constant for 1
 
 
@@ -52,23 +52,23 @@ void DbgPrintHex_LE(void * pData, int32_t len){
     return;
 }
 
-#define DbgPrintBnz(pIn) {\
+#define DbgPrintMarsz_(pIn) {\
     printf("%s", (((pIn)->allocated < 0) ? "-" : "+"));\
-    DbgPrintHex_BE((pIn)->pData, (sizeof(bnword_t) * ABS((pIn)->allocated))); \
+    DbgPrintHex_BE((pIn)->pData, (sizeof(marsword_t) * ABS((pIn)->allocated))); \
 }
 // end for dev
 
 
 // function:
-// Bnh: utility function:
-MARS_API_EXPORT void BnhMemcpy(
+// Marsh_: utility function:
+MARS_API_EXPORT void Marsh_Memcpy(
     void * pOut,
     void * pIn,
     int32_t len
 )
 {
     /*
-    void BnhMemcpy(
+    void Marsh_Memcpy(
         void * pOut,
         void * pIn,
         int32_t len
@@ -102,14 +102,14 @@ MARS_API_EXPORT void BnhMemcpy(
     return;
 }
 
-MARS_API_EXPORT void BnhMemset(
+MARS_API_EXPORT void Marsh_Memset(
     void * pOut,
     uint8_t val,
     int32_t len
 )
 {
     /*
-    void BnhMemset(
+    void Marsh_Memset(
         void * pOut,
         uint8_t val,
         int32_t len
@@ -141,14 +141,14 @@ MARS_API_EXPORT void BnhMemset(
     return;
 }
 
-MARS_API_EXPORT int32_t BnhMemcmp(
+MARS_API_EXPORT int32_t Marsh_Memcmp(
     void * pIn1,
     void * pIn2,
     int32_t len
 )
 {
     /*
-    void BnhMemcmp(
+    void Marsh_Memcmp(
         void * pIn1,
         void * pIn2,
         int32_t len
@@ -184,13 +184,13 @@ MARS_API_EXPORT int32_t BnhMemcmp(
     return result;
 }
 
-MARS_API_EXPORT void BnhZeroize(
+MARS_API_EXPORT void Marsh_Zeroize(
     void * pOut,
     int32_t len
 )
 {
     /*
-    void BnhZeroize(
+    void Marsh_Zeroize(
         void * pOut,
         int32_t len
     );
@@ -220,13 +220,13 @@ MARS_API_EXPORT void BnhZeroize(
     return;
 }
 
-MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_LE(
     uint8_t * pBaIn,
     int32_t lenBaIn
 )
 {
     /*
-    int32_t BnhGetDigitsInBytes_LE(
+    int32_t Marsh_GetDigitsInBytes_LE(
         uint8_t * pBaIn,
         int32_t lenBaIn
     );
@@ -263,13 +263,13 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(
     return result;
 }
 
-MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_BE(
     uint8_t * pBaIn,
     int32_t lenBaIn
 )
 {
     /*
-    int32_t BnhGetDigitsInBytes_BE(
+    int32_t Marsh_GetDigitsInBytes_BE(
         uint8_t * pBaIn,
         int32_t lenBaIn
     );
@@ -307,13 +307,13 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(
     return result;
 }
 
-MARS_API_EXPORT int32_t BnhGetDigitsInBits_LE(
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_LE(
     uint8_t * pBaIn,
     int32_t lenBaIn
 )
 {
     /*
-    int32_t BnhGetDigitsInBits_LE(
+    int32_t Marsh_GetDigitsInBits_LE(
         uint8_t * pBaIn,
         int32_t lenBaIn
     );
@@ -363,13 +363,13 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBits_LE(
     // return:
     return result;
 }
-MARS_API_EXPORT int32_t BnhGetDigitsInBits_BE(
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_BE(
     uint8_t * pBaIn,
     int32_t lenBaIn
 )
 {
     /*
-    int32_t BnhGetDigitsInBits_BE(
+    int32_t Marsh_GetDigitsInBits_BE(
         uint8_t * pBaIn,
         int32_t lenBaIn
     );
@@ -419,18 +419,18 @@ MARS_API_EXPORT int32_t BnhGetDigitsInBits_BE(
     return result;
 }
 
-// Bnz: signed integer related function:
-MARS_API_EXPORT void BnzInit(
-    bnzptr_t pIn
+// Marsz_: signed integer related function:
+MARS_API_EXPORT void Marsz_Init(
+    marszptr_t pIn
 )
 {
     /*
-    void BnzInit(
-        bnzptr_t pIn
+    void Marsz_Init(
+        marszptr_t pIn
     );
 
     Arg:
-    - pIn: target (bnz_t) object pointer
+    - pIn: target (marsz_t) object pointer
 
     Do:
     - Allocate and initialize the target (bunz_t) object (pIn) refers.
@@ -447,31 +447,31 @@ MARS_API_EXPORT void BnzInit(
         return;
     }
     // else:
-    pIn->pData = (bnword_t *)malloc(CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t)); // allocate
+    pIn->pData = (marsword_t *)malloc(CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t)); // allocate
     if(!(pIn->pData)){
         // exception: pData is NULL = failed to malloc()
         return;
     }
     // else:
-    BnhZeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_BNZ_WORDS * sizeof(bnword_t))); // reset to 0
-    pIn->allocated = CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_BNZ_WORDS;
+    Marsh_Zeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t))); // reset to 0
+    pIn->allocated = CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS;
     
 
     // return:
     return; 
 }
 
-MARS_API_EXPORT void BnzFinal(
-    bnzptr_t pIn
+MARS_API_EXPORT void Marsz_Final(
+    marszptr_t pIn
 )
 {
     /*
-    void BnzFinal(
-        bnzptr_t pIn
+    void Marsz_Final(
+        marszptr_t pIn
     );
 
     Arg:
-    - pIn: target (bnz_t) object pointer
+    - pIn: target (marsz_t) object pointer
 
     Do:
     - Zerorize and Deallocate the target (bunz_t) object (pIn) refers.
@@ -490,7 +490,7 @@ MARS_API_EXPORT void BnzFinal(
     // else:
     if(pIn->pData){
         // pIn->pData != NULL:
-        BnhZeroize((void *)(pIn->pData), (ABS(pIn->allocated) * sizeof(bnword_t))); // reset to 0
+        Marsh_Zeroize((void *)(pIn->pData), (ABS(pIn->allocated) * sizeof(marsword_t))); // reset to 0
         free(pIn->pData);
     }
     pIn->pData = NULL;
@@ -500,29 +500,29 @@ MARS_API_EXPORT void BnzFinal(
     return; 
 }
 
-MARS_API_EXPORT void BnzBa2Bn(
-    bnzptr_t pOut,
+MARS_API_EXPORT void Marsz_Ba2Bn(
+    marszptr_t pOut,
     uint8_t * pBaIn,
     int32_t lenBaIn,
     int32_t sign
 )
 {
     /*
-    void BnzBa2Bn(
-        bnzptr_t pOut,
+    void Marsz_Ba2Bn(
+        marszptr_t pOut,
         uint8_t * pBaIn,
         int32_t lenBaIn,
         int32_t sign
     );
 
     Arg:
-    - pOut: target (bnz_t) object pointer
+    - pOut: target (marsz_t) object pointer
     - pBaIn: source (uint8_t) byte array pointer
     - lenBaIn: length of (uint8_t) source array (pBaIn) refers
     - sign: sign of the number, 1 to positive, -1 to negative
 
     Do:
-    - Convert (lenBaIn) bytes in (pBaIn) to target big number (bnz_t) object (pOut) refers.
+    - Convert (lenBaIn) bytes in (pBaIn) to target big number (marsz_t) object (pOut) refers.
 
     Return:
     - (NO RETURN)
@@ -538,12 +538,12 @@ MARS_API_EXPORT void BnzBa2Bn(
     // else:
     int32_t digitsInBytes = 0;
     int32_t neededWords = 0;
-    bnword_t * newData = NULL;
-    digitsInBytes = BnhGetDigitsInBytes_BE(pBaIn, lenBaIn); // get digits in bytes
-    neededWords = (digitsInBytes + (sizeof(bnword_t) - 1)) / sizeof(bnword_t); // get needed words from needed bytes
+    marsword_t * newData = NULL;
+    digitsInBytes = Marsh_GetDigitsInBytes_BE(pBaIn, lenBaIn); // get digits in bytes
+    neededWords = (digitsInBytes + (sizeof(marsword_t) - 1)) / sizeof(marsword_t); // get needed words from needed bytes
     neededWords = MAX(neededWords, 1);
 
-    newData = (bnword_t *)malloc((sizeof(bnword_t) * neededWords));
+    newData = (marsword_t *)malloc((sizeof(marsword_t) * neededWords));
     free(pOut->pData);
     pOut->pData = newData;
     if(!(pOut->pData)){
@@ -552,7 +552,7 @@ MARS_API_EXPORT void BnzBa2Bn(
     }
     // else:
     pOut->allocated = sign * neededWords;
-    BnhZeroize((void *)(pOut->pData), (sizeof(bnword_t) * neededWords)); // reset to 0
+    Marsh_Zeroize((void *)(pOut->pData), (sizeof(marsword_t) * neededWords)); // reset to 0
     for(int32_t i=0; i<digitsInBytes; i++){
         *(((uint8_t *)(pOut->pData)) + i) = (uint8_t)(*(pBaIn + lenBaIn - 1 - i));
     }
@@ -561,23 +561,23 @@ MARS_API_EXPORT void BnzBa2Bn(
     return; 
 }
 
-MARS_API_EXPORT int32_t BnzBn2Ba(
+MARS_API_EXPORT int32_t Marsz_Bn2Ba(
     uint8_t * pBaOut,
     int32_t lenBaOut,
-    bnzptr_t pIn
+    marszptr_t pIn
 )
 {
     /*
-    int32_t BnzBn2Ba(
+    int32_t Marsz_Bn2Ba(
         uint8_t * pBaOut,
         int32_t lenBaOut,
-        bnzptr_t pIn
+        marszptr_t pIn
     )
 
     Arg:
     - pBaOut: target (uint8_t) byte array pointer
     - lenBaOut: length of (uint8_t) target array (pBaOut) refers
-    - pBaIn: source (bnz_t) object pointer
+    - pBaIn: source (marsz_t) object pointer
 
     Do:
     - Convert (lenBaOut) bytes of big number in (pIn) to target (uint8_t) bytes array (pBaOut) refers.
@@ -595,7 +595,7 @@ MARS_API_EXPORT int32_t BnzBn2Ba(
     }
     // else:
     int32_t sign = 0;
-    for(int32_t i=0; ((i<lenBaOut) && (i<(ABS(pIn->allocated) * sizeof(bnword_t)))); i++){
+    for(int32_t i=0; ((i<lenBaOut) && (i<(ABS(pIn->allocated) * sizeof(marsword_t)))); i++){
         *(pBaOut + lenBaOut - 1 - i) = *(((uint8_t *)(pIn->pData)) + i);
     }
     sign = (((pIn->allocated) < 0) ? CONST_SIGN_NEGATIVE : CONST_SIGN_POSITIVE);
@@ -604,20 +604,20 @@ MARS_API_EXPORT int32_t BnzBn2Ba(
     return sign; 
 }
 
-MARS_API_EXPORT int32_t BnzCompareAbs(
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_CompareAbs(
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzCompareAbs(
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_CompareAbs(
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pIn1: target (bnz_t) object 1 pointer
-    - pIn2: target (bnz_t) object 2 pointer
+    - pIn1: target (marsz_t) object 1 pointer
+    - pIn2: target (marsz_t) object 2 pointer
 
     Do:
     - Compare ABS(pIn1) and ABS(pIn2),
@@ -659,20 +659,20 @@ MARS_API_EXPORT int32_t BnzCompareAbs(
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzCompare(
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_Compare(
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzCompare(
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_Compare(
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pIn1: target (bnz_t) object 1 pointer
-    - pIn2: target (bnz_t) object 2 pointer
+    - pIn1: target (marsz_t) object 1 pointer
+    - pIn2: target (marsz_t) object 2 pointer
 
     Do:
     - Compare (pIn1) and (pIn2),
@@ -700,7 +700,7 @@ MARS_API_EXPORT int32_t BnzCompare(
     // else:
     // 부호, 워드 수 같음:
     int absCompared = 0;
-    absCompared = BnzCompareAbs(pIn1, pIn2);
+    absCompared = Marsz_CompareAbs(pIn1, pIn2);
     if((pIn1->allocated) < 0){
         // 음수이므로 결과 반전
         if(absCompared == CONST_SIGN_POSITIVE){
@@ -712,20 +712,20 @@ MARS_API_EXPORT int32_t BnzCompare(
     return absCompared;
 }
 
-MARS_API_EXPORT void BnzAssign(
-    bnzptr_t pOut,
-    bnzptr_t pIn
+MARS_API_EXPORT void Marsz_Assign(
+    marszptr_t pOut,
+    marszptr_t pIn
 )
 {
     /*
-    void BnzAssign(
-        bnzptr_t pOut,
-        bnzptr_t pIn
+    void Marsz_Assign(
+        marszptr_t pOut,
+        marszptr_t pIn
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn: target (bnz_t) object input pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn: target (marsz_t) object input pointer
 
     Do:
     - Do (pOut) = (pIn)
@@ -748,29 +748,29 @@ MARS_API_EXPORT void BnzAssign(
         return;
     }
     // else:
-    bnword_t * newData = NULL;
-    newData = (bnword_t *)malloc((sizeof(bnword_t) * ABS(pIn->allocated)));
-    BnhZeroize((void *)(newData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    marsword_t * newData = NULL;
+    newData = (marsword_t *)malloc((sizeof(marsword_t) * ABS(pIn->allocated)));
+    Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * ABS(pIn->allocated)));
     free(pOut->pData);
     pOut->pData = newData;
-    BnhMemcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    Marsh_Memcpy((void *)(pOut->pData), (void *)(pIn->pData), (sizeof(marsword_t) * ABS(pIn->allocated)));
     pOut->allocated = pIn->allocated;
 
     // return:
     return;
 }
 
-MARS_API_EXPORT int32_t BnzSgn(
-    bnzptr_t pIn
+MARS_API_EXPORT int32_t Marsz_Sgn(
+    marszptr_t pIn
 )
 {
     /*
-    int32_t BnzSgn(
-        bnzptr_t pIn
+    int32_t Marsz_Sgn(
+        marszptr_t pIn
     )
 
     Arg:
-    - pIn: target (bnz_t) object pointer
+    - pIn: target (marsz_t) object pointer
 
     Do:
     - Check sign of (pIn)
@@ -796,23 +796,23 @@ MARS_API_EXPORT int32_t BnzSgn(
     return result;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseAnd(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_BitwiseAnd(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzBitwiseAnd(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_BitwiseAnd(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) & (pIn2)
@@ -841,23 +841,23 @@ MARS_API_EXPORT int32_t BnzBitwiseAnd(
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseOr(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_BitwiseOr(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzBitwiseOr(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_BitwiseOr(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) | (pIn2)
@@ -875,10 +875,10 @@ MARS_API_EXPORT int32_t BnzBitwiseOr(
     }
 
     // else:
-    bnzptr_t t1 = NULL;
-    bnzptr_t t2 = NULL;
-    bnz_t t3;
-    BnzInit(t3);
+    marszptr_t t1 = NULL;
+    marszptr_t t2 = NULL;
+    marsz_t t3;
+    Marsz_Init(t3);
     if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
         t1 = pIn1;
         t2 = pIn2;
@@ -887,34 +887,34 @@ MARS_API_EXPORT int32_t BnzBitwiseOr(
         t2 = pIn1;
     }
 
-    BnzAssign(t3, t1);
+    Marsz_Assign(t3, t1);
     for(int32_t i=0; i<ABS(t2->allocated); i++){
         *((t3->pData) + i) = *((t1->pData) + i) | *((t2->pData) + i);
     }
-    BnzAssign(pOut, t3);
+    Marsz_Assign(pOut, t3);
 
     // return:
-    BnzFinal(t3);
+    Marsz_Final(t3);
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseXor(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_BitwiseXor(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzBitwiseXor(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_BitwiseXor(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) ^ (pIn2)
@@ -932,10 +932,10 @@ MARS_API_EXPORT int32_t BnzBitwiseXor(
     }
 
     // else:
-    bnzptr_t t1 = NULL;
-    bnzptr_t t2 = NULL;
-    bnz_t t3;
-    BnzInit(t3);
+    marszptr_t t1 = NULL;
+    marszptr_t t2 = NULL;
+    marsz_t t3;
+    Marsz_Init(t3);
     if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
         t1 = pIn1;
         t2 = pIn2;
@@ -944,32 +944,32 @@ MARS_API_EXPORT int32_t BnzBitwiseXor(
         t2 = pIn1;
     }
 
-    BnzAssign(t3, t1);
+    Marsz_Assign(t3, t1);
     for(int32_t i=0; i<ABS(t2->allocated); i++){
         *((t3->pData) + i) = *((t1->pData) + i) ^ *((t2->pData) + i);
     }
-    BnzAssign(pOut, t3);
+    Marsz_Assign(pOut, t3);
 
 
     // return:
-    BnzFinal(t3);
+    Marsz_Final(t3);
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseNot(
-    bnzptr_t pOut,
-    bnzptr_t pIn
+MARS_API_EXPORT int32_t Marsz_BitwiseNot(
+    marszptr_t pOut,
+    marszptr_t pIn
 )
 {
     /*
-    int32_t BnzBitwiseNot(
-        bnzptr_t pOut,
-        bnzptr_t pIn
+    int32_t Marsz_BitwiseNot(
+        marszptr_t pOut,
+        marszptr_t pIn
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn: target (bnz_t) object input pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn: target (marsz_t) object input pointer
 
     Do:
     - Do (pOut) = ~(pIn)
@@ -987,34 +987,34 @@ MARS_API_EXPORT int32_t BnzBitwiseNot(
     }
 
     // else:
-    bnz_t t1;
-    BnzInit(t1);
+    marsz_t t1;
+    Marsz_Init(t1);
     for(int32_t i=0; i<(ABS(pIn->allocated)); i++){
         *((t1->pData) + i) = ~(*((pIn->pData) + i));
     }
-    BnzAssign(pOut, t1);
+    Marsz_Assign(pOut, t1);
 
     // return:
-    BnzFinal(t1);
+    Marsz_Final(t1);
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseLeftShift(
-    bnzptr_t pOut,
-    bnzptr_t pIn,
+MARS_API_EXPORT int32_t Marsz_BitwiseLeftShift(
+    marszptr_t pOut,
+    marszptr_t pIn,
     int32_t shift
 )
 {
     /*
-    int32_t BnzBitwiseLeftShift(
-        bnzptr_t pOut,
-        bnzptr_t pIn,
+    int32_t Marsz_BitwiseLeftShift(
+        marszptr_t pOut,
+        marszptr_t pIn,
         int32_t shift
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn: target (bnz_t) object input pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn: target (marsz_t) object input pointer
     - shift: number of positions to shift
 
     Do:
@@ -1033,35 +1033,35 @@ MARS_API_EXPORT int32_t BnzBitwiseLeftShift(
     }
 
     // else:
-    bnz_t t1;
-    BnzInit(t1);
+    marsz_t t1;
+    Marsz_Init(t1);
 
-    BnzAssign(t1, pIn);
+    Marsz_Assign(t1, pIn);
     for(int32_t i=0; i<shift; i++){
-        BnzAdd(t1, t1, t1); // t1 = t1 << 1
+        Marsz_Add(t1, t1, t1); // t1 = t1 << 1
     }
-    BnzAssign(pOut, t1);
+    Marsz_Assign(pOut, t1);
     
-    BnzFinal(t1);
+    Marsz_Final(t1);
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzBitwiseRightShift(
-    bnzptr_t pOut,
-    bnzptr_t pIn,
+MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
+    marszptr_t pOut,
+    marszptr_t pIn,
     int32_t shift
 )
 {
     /*
-    int32_t BnzBitwiseRightShift(
-        bnzptr_t pOut,
-        bnzptr_t pIn,
+    int32_t Marsz_BitwiseRightShift(
+        marszptr_t pOut,
+        marszptr_t pIn,
         int32_t shift
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn: target (bnz_t) object input pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn: target (marsz_t) object input pointer
     - shift: number of positions to shift
 
     Do:
@@ -1080,35 +1080,35 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     }
 
     if(!shift){
-        BnzAssign(pOut, pIn);
+        Marsz_Assign(pOut, pIn);
         return 0;
     }
 
     // else:
-    bnz_t t1;
-    bnword_t * newData = NULL;
+    marsz_t t1;
+    marsword_t * newData = NULL;
     int32_t orgSign = 0;
     int32_t nonZeroIdx = -1;
 
-    BnzInit(t1);
-    orgSign = BnzSgn(pIn);
-    newData = (bnword_t *)malloc((sizeof(bnword_t) * ABS(pIn->allocated)));
-    BnhZeroize((void *)(newData), (sizeof(bnword_t) * ABS(pIn->allocated)));
+    Marsz_Init(t1);
+    orgSign = Marsz_Sgn(pIn);
+    newData = (marsword_t *)malloc((sizeof(marsword_t) * ABS(pIn->allocated)));
+    Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * ABS(pIn->allocated)));
     free(t1->pData);
     t1->pData = newData;
     t1->allocated = ABS(pIn->allocated);
 
     for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
-        int32_t destidx = srcidx - (shift / (sizeof(bnword_t) << 3));
+        int32_t destidx = srcidx - (shift / (sizeof(marsword_t) << 3));
 
         if(destidx < 0){
             break;
         }
-        *((t1->pData) + destidx) |= *((pIn->pData) + srcidx) >> (shift % (sizeof(bnword_t) << 3));
+        *((t1->pData) + destidx) |= *((pIn->pData) + srcidx) >> (shift % (sizeof(marsword_t) << 3));
         if(destidx){
-            if((shift % (sizeof(bnword_t) << 3))){
-                *((t1->pData) + destidx - 1) |= *((pIn->pData) + srcidx) << ((sizeof(bnword_t) << 3) - (shift % (sizeof(bnword_t) << 3)));
+            if((shift % (sizeof(marsword_t) << 3))){
+                *((t1->pData) + destidx - 1) |= *((pIn->pData) + srcidx) << ((sizeof(marsword_t) << 3) - (shift % (sizeof(marsword_t) << 3)));
             }
         }
     }
@@ -1125,40 +1125,40 @@ MARS_API_EXPORT int32_t BnzBitwiseRightShift(
     }
     if(nonZeroIdx == -2){
         t1->allocated = orgSign * (t1->allocated);
-        BnzAssign(pOut, t1);
+        Marsz_Assign(pOut, t1);
     }else if(nonZeroIdx != -1){
-        newData = (bnword_t *)malloc((sizeof(bnword_t) * (nonZeroIdx + 1)));
-        BnhZeroize((void *)(newData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
-        BnhMemcpy((void *)(newData), (void *)(t1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+        newData = (marsword_t *)malloc((sizeof(marsword_t) * (nonZeroIdx + 1)));
+        Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
+        Marsh_Memcpy((void *)(newData), (void *)(t1->pData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
         free(t1->pData);
         t1->pData = newData;
         t1->allocated = orgSign * (nonZeroIdx + 1);
-        BnzAssign(pOut, t1);
+        Marsz_Assign(pOut, t1);
     }else{
-        BnzAssign(pOut, bn_zero);
+        Marsz_Assign(pOut, mars_zero);
     }
 
-    BnzFinal(t1);
+    Marsz_Final(t1);
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzAdd(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_Add(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzAdd(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_Add(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) + (pIn2),
@@ -1175,17 +1175,17 @@ MARS_API_EXPORT int32_t BnzAdd(
         return 0;
     }
     // else:
-    bnword_t s = 0; // sum
-    bnword_t c = 0; // carry
-    bnword_t * oldData = NULL;
-    bnword_t * newData = NULL;
+    marsword_t s = 0; // sum
+    marsword_t c = 0; // carry
+    marsword_t * oldData = NULL;
+    marsword_t * newData = NULL;
     int32_t tempIdx = 0;
     int32_t resultSign = 0;
     int32_t estimatedWords = 0;
-    bnz_t t1;
-    bnzptr_t t2 = NULL;
+    marsz_t t1;
+    marszptr_t t2 = NULL;
 
-    if(BnzSgn(pIn1) == BnzSgn(pIn2)){
+    if(Marsz_Sgn(pIn1) == Marsz_Sgn(pIn2)){
         // case 1. pIn1.sign == pIn2.sign: 그대로 더하기
         if((pIn1->allocated) < 0){
             // 음수 + 음수:
@@ -1195,12 +1195,12 @@ MARS_API_EXPORT int32_t BnzAdd(
             resultSign = CONST_SIGN_POSITIVE;
         }
         
-        BnzInit(t1);
+        Marsz_Init(t1);
         estimatedWords = MAX(ABS(pIn1->allocated), ABS(pIn2->allocated));
 
         // reallocate t1->pData to estimatedWords:
-        newData = (bnword_t *)malloc((sizeof(bnword_t) * estimatedWords));
-        BnhZeroize((void *)(newData), (sizeof(bnword_t) * estimatedWords));
+        newData = (marsword_t *)malloc((sizeof(marsword_t) * estimatedWords));
+        Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * estimatedWords));
         free(t1->pData);
         t1->pData = newData;
         t1->allocated = estimatedWords;
@@ -1249,9 +1249,9 @@ MARS_API_EXPORT int32_t BnzAdd(
 
         if(c){
             // reallocate t1->pData to (estimatedWords + 1):
-            newData = (bnword_t *)malloc((sizeof(bnword_t) * (estimatedWords + 1)));
-            BnhZeroize((void *)(newData), (sizeof(bnword_t) * (estimatedWords + 1)));
-            BnhMemcpy((void *)(newData), (void *)(t1->pData), (sizeof(bnword_t) * estimatedWords));
+            newData = (marsword_t *)malloc((sizeof(marsword_t) * (estimatedWords + 1)));
+            Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * (estimatedWords + 1)));
+            Marsh_Memcpy((void *)(newData), (void *)(t1->pData), (sizeof(marsword_t) * estimatedWords));
             free(t1->pData);
             t1->pData = newData;
             t1->allocated = estimatedWords + 1;
@@ -1268,43 +1268,43 @@ MARS_API_EXPORT int32_t BnzAdd(
         pOut->allocated = t1->allocated;
     }else{
         // case 2. pIn1.sign != pIn2.sign: 절댓값 뺄셈 수행
-        BnzInit(t1);
+        Marsz_Init(t1);
 
-        if(BnzSgn(pIn1) > BnzSgn(pIn2)){
+        if(Marsz_Sgn(pIn1) > Marsz_Sgn(pIn2)){
             // pIn1: 양수 -> pIn2를 양수로 바꾸어 뺄셈:
-            BnzAssign(t1, pIn2);
+            Marsz_Assign(t1, pIn2);
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
-            c = BnzSub(pOut, pIn1, t1);
+            c = Marsz_Sub(pOut, pIn1, t1);
         }else{
             // pIn2: 양수 -> pIn1를 양수로 바꾸어 뺄셈:
-            BnzAssign(t1, pIn1);
+            Marsz_Assign(t1, pIn1);
             t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
-            c = BnzSub(pOut, pIn2, t1);
+            c = Marsz_Sub(pOut, pIn2, t1);
         }
-        BnzFinal(t1);
+        Marsz_Final(t1);
     }
 
     // return:
     return c;
 }
 
-MARS_API_EXPORT int32_t BnzSub(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_Sub(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzSub(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_Sub(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) - (pIn2),
@@ -1321,48 +1321,48 @@ MARS_API_EXPORT int32_t BnzSub(
         return 0;
     }
     // else:
-    bnword_t s = 0; // sum
-    bnword_t b = 0; // borrow
-    bnword_t * oldData = NULL;
-    bnword_t * newData = NULL;
+    marsword_t s = 0; // sum
+    marsword_t b = 0; // borrow
+    marsword_t * oldData = NULL;
+    marsword_t * newData = NULL;
     int32_t tempIdx = 0;
     int32_t compareResult = 0;
     int32_t estimatedWords = 0;
     int32_t nonZeroIdx = -1;
-    bnz_t t1;
-    bnz_t tBig;
-    bnz_t tSmall;
-    bnzptr_t pSmall = NULL;
+    marsz_t t1;
+    marsz_t tBig;
+    marsz_t tSmall;
+    marszptr_t pSmall = NULL;
 
-    if(BnzSgn(pIn1) == BnzSgn(pIn2)){
+    if(Marsz_Sgn(pIn1) == Marsz_Sgn(pIn2)){
         // case1. pIn1.sign == pIn2.sign: 절댓값 뺄셈 수행
-        BnzInit(tBig);
-        BnzInit(tSmall);
+        Marsz_Init(tBig);
+        Marsz_Init(tSmall);
 
-        compareResult = BnzCompareAbs(pIn1, pIn2);
+        compareResult = Marsz_CompareAbs(pIn1, pIn2);
         if(compareResult == CONST_SIGN_POSITIVE){
             // ABS(pIn1) > ABS(pIn2):
-            BnzAssign(tBig, pIn1);
-            BnzAssign(tSmall, pIn2);
+            Marsz_Assign(tBig, pIn1);
+            Marsz_Assign(tSmall, pIn2);
             pSmall = pIn2;
         }else if(compareResult == CONST_SIGN_NEGATIVE){
             // ABS(pIn1) < ABS(pIn2):
-            BnzAssign(tBig, pIn2);
-            BnzAssign(tSmall, pIn1);  
+            Marsz_Assign(tBig, pIn2);
+            Marsz_Assign(tSmall, pIn1);  
             pSmall = pIn1;
         }else{
             // ABS(pIn1) == ABS(pIn2):
-            BnzAssign(tBig, pIn1);
-            BnzAssign(tSmall, pIn2);  
+            Marsz_Assign(tBig, pIn1);
+            Marsz_Assign(tSmall, pIn2);  
             pSmall = NULL;
         }
         
-        BnzInit(t1);
+        Marsz_Init(t1);
         estimatedWords = ABS(tBig->allocated);
 
         // reallocate t1->pData to estimatedWords:
-        newData = (bnword_t *)malloc((sizeof(bnword_t) * estimatedWords));
-        BnhZeroize((void *)(newData), (sizeof(bnword_t) * estimatedWords));
+        newData = (marsword_t *)malloc((sizeof(marsword_t) * estimatedWords));
+        Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * estimatedWords));
         free(t1->pData);
         t1->pData = newData;
         t1->allocated = estimatedWords;
@@ -1409,9 +1409,9 @@ MARS_API_EXPORT int32_t BnzSub(
             }
         }
         if(nonZeroIdx != -1){
-            newData = (bnword_t *)malloc((sizeof(bnword_t) * (nonZeroIdx + 1)));
-            BnhZeroize((void *)(newData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
-            BnhMemcpy((void *)(newData), (void *)(t1->pData), (sizeof(bnword_t) * (nonZeroIdx + 1)));
+            newData = (marsword_t *)malloc((sizeof(marsword_t) * (nonZeroIdx + 1)));
+            Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
+            Marsh_Memcpy((void *)(newData), (void *)(t1->pData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
             free(t1->pData);
             t1->pData = newData;
             t1->allocated = (nonZeroIdx + 1);
@@ -1422,35 +1422,35 @@ MARS_API_EXPORT int32_t BnzSub(
         }
 
         // t1 to pOut:
-        BnzAssign(pOut, t1);
-        BnzFinal(tBig);
-        BnzFinal(tSmall);
-        BnzFinal(t1);
+        Marsz_Assign(pOut, t1);
+        Marsz_Final(tBig);
+        Marsz_Final(tSmall);
+        Marsz_Final(t1);
     }else{
         // case 2. pIn1.sign == pIn2.sign: 절댓값 덧셈 수행
-        b = BnzAdd(pOut, pIn1, pIn2);
+        b = Marsz_Add(pOut, pIn1, pIn2);
     } 
     // return:
     return b;
 }
 
-MARS_API_EXPORT int32_t BnzMul(
-    bnzptr_t pOut,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_Mul(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzMul(
-        bnzptr_t pOut,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_Mul(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut: target (bnz_t) object output pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pOut) = (pIn1) * (pIn2),
@@ -1471,47 +1471,47 @@ MARS_API_EXPORT int32_t BnzMul(
 
     ///*
     // 구현 2: naive 구현 2: 참을만함
-    bnz_t bn_temp;
-    bnz_t bn_result;
+    marsz_t marsn_temp;
+    marsz_t marsn_result;
 
-    BnzInit(bn_temp);
-    BnzInit(bn_result);
+    Marsz_Init(marsn_temp);
+    Marsz_Init(marsn_result);
 
     //
-    BnzAssign(bn_temp, pIn2); // bn_temp = pIn2
-    for(int32_t i=0; i<(sizeof(bnword_t) * ABS(pIn1->allocated) << 3); i++){
-        if(((*((pIn1->pData) + (i / (sizeof(bnword_t) << 3))) >> (i % (sizeof(bnword_t) << 3))) & 1) == 1){
-            BnzAdd(bn_result, bn_result, bn_temp); // bn_result += bn_temp
+    Marsz_Assign(marsn_temp, pIn2); // marsn_temp = pIn2
+    for(int32_t i=0; i<(sizeof(marsword_t) * ABS(pIn1->allocated) << 3); i++){
+        if(((*((pIn1->pData) + (i / (sizeof(marsword_t) << 3))) >> (i % (sizeof(marsword_t) << 3))) & 1) == 1){
+            Marsz_Add(marsn_result, marsn_result, marsn_temp); // marsn_result += marsn_temp
         }
-        if(i < ((sizeof(bnword_t) * ABS(pIn1->allocated) << 3) - 1)){
-            // 마지막 루프시 (bn_temp *= 2) 생략 위함
-            BnzAdd(bn_temp, bn_temp, bn_temp); // bn_temp *= 2
+        if(i < ((sizeof(marsword_t) * ABS(pIn1->allocated) << 3) - 1)){
+            // 마지막 루프시 (marsn_temp *= 2) 생략 위함
+            Marsz_Add(marsn_temp, marsn_temp, marsn_temp); // marsn_temp *= 2
         }
     }
-    BnzAssign(pOut, bn_result); // pOut = bn_result
+    Marsz_Assign(pOut, marsn_result); // pOut = marsn_result
     
     // clear:
-    BnzFinal(bn_temp);
-    BnzFinal(bn_result);
+    Marsz_Final(marsn_temp);
+    Marsz_Final(marsn_result);
     //*/
     //
 
     /*
     // 구현 1: naive 구현 1: 너무 느림
-    bnz_t bn_i;
-    bnz_t bn_result;
+    marsz_t marsn_i;
+    marsz_t marsn_result;
 
-    BnzInit(bn_i);
-    BnzInit(bn_result);
+    Marsz_Init(marsn_i);
+    Marsz_Init(marsn_result);
 
-    // (pIn2) times: bn_result += (pIn1)
-    for(BnzAssign(bn_i, bn_zero); (BnzCompare(pIn2, bn_i) == 1); (BnzAdd(bn_i, bn_i, bn_one))){
-        BnzAdd(bn_result, bn_result, pIn1); // bn_result += pIn1
+    // (pIn2) times: marsn_result += (pIn1)
+    for(Marsz_Assign(marsn_i, mars_zero); (Marsz_Compare(pIn2, marsn_i) == 1); (Marsz_Add(marsn_i, marsn_i, mars_one))){
+        Marsz_Add(marsn_result, marsn_result, pIn1); // marsn_result += pIn1
     }
-    BnzAssign(pOut, bn_result); // pOut = bn_result
+    Marsz_Assign(pOut, marsn_result); // pOut = marsn_result
     // clear:
-    BnzFinal(bn_i);
-    BnzFinal(bn_result);
+    Marsz_Final(marsn_i);
+    Marsz_Final(marsn_result);
     */
     //
 
@@ -1519,26 +1519,26 @@ MARS_API_EXPORT int32_t BnzMul(
     return 0;
 }
 
-MARS_API_EXPORT int32_t BnzDiv(
-    bnzptr_t pOut1,
-    bnzptr_t pOut2,
-    bnzptr_t pIn1,
-    bnzptr_t pIn2
+MARS_API_EXPORT int32_t Marsz_Div(
+    marszptr_t pOut1,
+    marszptr_t pOut2,
+    marszptr_t pIn1,
+    marszptr_t pIn2
 )
 {
     /*
-    int32_t BnzDiv(
-        bnzptr_t pOut1,
-        bnzptr_t pOut2,
-        bnzptr_t pIn1,
-        bnzptr_t pIn2
+    int32_t Marsz_Div(
+        marszptr_t pOut1,
+        marszptr_t pOut2,
+        marszptr_t pIn1,
+        marszptr_t pIn2
     )
 
     Arg:
-    - pOut1: target (bnz_t) object output 1 pointer
-    - pOut2: target (bnz_t) object output 2 pointer
-    - pIn1: target (bnz_t) object input 1 pointer
-    - pIn2: target (bnz_t) object input 2 pointer
+    - pOut1: target (marsz_t) object output 1 pointer
+    - pOut2: target (marsz_t) object output 2 pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
 
     Do:
     - Do (pIn1) / (pIn2), q = (pOut1), r = (pOut2)
@@ -1555,7 +1555,7 @@ MARS_API_EXPORT int32_t BnzDiv(
         return 0;
     }
     // else:
-    if(BnzCompare(pIn2, bn_zero) == 0){
+    if(Marsz_Compare(pIn2, mars_zero) == 0){
         // exception: pIn2 == 0
         return 0;
     }
@@ -1579,66 +1579,66 @@ MARS_API_EXPORT int32_t BnzDiv(
     //-- Where: N = numerator, D = denominator, n = #bits, R = partial remainder, q(i) = bit #i of quotient
     //
 
-    bnz_t bn_q, bn_r, bn_d, bn_t1;
-    int32_t n = BnhGetDigitsInBits_LE(pIn1->pData, (sizeof(bnword_t) * ABS(pIn1->allocated)));
+    marsz_t marsn_q, marsn_r, marsn_d, marsn_t1;
+    int32_t n = Marsh_GetDigitsInBits_LE(pIn1->pData, (sizeof(marsword_t) * ABS(pIn1->allocated)));
 
-    BnzInit(bn_q);
-    BnzInit(bn_r);
-    BnzInit(bn_d);
-    BnzInit(bn_t1);
+    Marsz_Init(marsn_q);
+    Marsz_Init(marsn_r);
+    Marsz_Init(marsn_d);
+    Marsz_Init(marsn_t1);
     
-    BnzAssign(bn_t1, bn_one); // bn_t1 = 1
-    BnzBitwiseLeftShift(bn_t1, bn_t1, n-1); // bn_t1 = 2 ^ (n-1)
+    Marsz_Assign(marsn_t1, mars_one); // marsn_t1 = 1
+    Marsz_BitwiseLeftShift(marsn_t1, marsn_t1, n-1); // marsn_t1 = 2 ^ (n-1)
 
-    BnzAssign(bn_r, pIn1); // bn_r = pIn1
-    BnzBitwiseLeftShift(bn_d, pIn2, n); // bn_d = pIn2 << n
+    Marsz_Assign(marsn_r, pIn1); // marsn_r = pIn1
+    Marsz_BitwiseLeftShift(marsn_d, pIn2, n); // marsn_d = pIn2 << n
     for(int32_t i=(n-1); i>=0; i--){
-        // bn_r = 2 * bn_r - bn_d :
-        BnzAdd(bn_r, bn_r, bn_r); // bn_r = 2 * bn_r
-        BnzSub(bn_r, bn_r, bn_d); // bn_r = bn_r - bn_d
+        // marsn_r = 2 * marsn_r - marsn_d :
+        Marsz_Add(marsn_r, marsn_r, marsn_r); // marsn_r = 2 * marsn_r
+        Marsz_Sub(marsn_r, marsn_r, marsn_d); // marsn_r = marsn_r - marsn_d
 
-        if(BnzCompare(bn_r, bn_zero) >= 0){
-            //BnzBitwiseOr(bn_q, bn_q, bn_t1); // q[bit i] = 1
-            BnzAdd(bn_q, bn_q, bn_t1); // q[bit i] = 1
+        if(Marsz_Compare(marsn_r, mars_zero) >= 0){
+            //Marsz_BitwiseOr(marsn_q, marsn_q, marsn_t1); // q[bit i] = 1
+            Marsz_Add(marsn_q, marsn_q, marsn_t1); // q[bit i] = 1
         }else{
-            BnzAdd(bn_r, bn_r, bn_d); // bn_r = bn_r + bn_d
+            Marsz_Add(marsn_r, marsn_r, marsn_d); // marsn_r = marsn_r + marsn_d
         }
-        BnzBitwiseRightShift(bn_t1, bn_t1, 1); // bn_t1 = bn_t1 >> 1
+        Marsz_BitwiseRightShift(marsn_t1, marsn_t1, 1); // marsn_t1 = marsn_t1 >> 1
     }
-    BnzBitwiseRightShift(bn_r, bn_r, n);
-    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
-    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
+    Marsz_BitwiseRightShift(marsn_r, marsn_r, n);
+    Marsz_Assign(pOut1, marsn_q); // pOut1 = marsn_q
+    Marsz_Assign(pOut2, marsn_r); // pOut2 = marsn_r
     
-    BnzFinal(bn_q);
-    BnzFinal(bn_r);
-    BnzFinal(bn_d);
-    BnzFinal(bn_t1);
+    Marsz_Final(marsn_q);
+    Marsz_Final(marsn_r);
+    Marsz_Final(marsn_d);
+    Marsz_Final(marsn_t1);
     //*/
     //
 
     /*
     // 구현 1: naive 구현 1: 너무 느림
-    bnz_t bn_temp;
-    bnz_t bn_q, bn_r;
+    marsz_t marsn_temp;
+    marsz_t marsn_q, marsn_r;
 
-    BnzInit(bn_temp);
-    BnzInit(bn_q);
-    BnzInit(bn_r);
+    Marsz_Init(marsn_temp);
+    Marsz_Init(marsn_q);
+    Marsz_Init(marsn_r);
 
-    BnzAssign(bn_temp, pIn1); // bn_temp = pIn1
-    while(BnzCompare(bn_temp, pIn2) > 0){
+    Marsz_Assign(marsn_temp, pIn1); // marsn_temp = pIn1
+    while(Marsz_Compare(marsn_temp, pIn2) > 0){
         //
-        BnzSub(bn_temp, bn_temp, pIn2); // bn_temp -= pIn2
-        BnzAdd(bn_q, bn_q, bn_one); // bn_q += 1
+        Marsz_Sub(marsn_temp, marsn_temp, pIn2); // marsn_temp -= pIn2
+        Marsz_Add(marsn_q, marsn_q, mars_one); // marsn_q += 1
     }
-    BnzAssign(bn_r, bn_temp); // bn_r = bn_temp
+    Marsz_Assign(marsn_r, marsn_temp); // marsn_r = marsn_temp
 
-    BnzAssign(pOut1, bn_q); // pOut1 = bn_q
-    BnzAssign(pOut2, bn_r); // pOut2 = bn_r
+    Marsz_Assign(pOut1, marsn_q); // pOut1 = marsn_q
+    Marsz_Assign(pOut2, marsn_r); // pOut2 = marsn_r
 
-    BnzFinal(bn_temp);
-    BnzFinal(bn_q);
-    BnzFinal(bn_r);    
+    Marsz_Final(marsn_temp);
+    Marsz_Final(marsn_q);
+    Marsz_Final(marsn_r);    
     */
     //
 

@@ -1,8 +1,2 @@
 #
-example1/example1.c: example file using .so library.
-example2/example2.c: example file using .so library.
-example3/example3.c: example file using .so library.
-example4/example4.c: example file using .so library.
-example5/example5.c: example file using .so library.
-example6/example6.c: example file using .so library.
-example7/example7.c: example file using .so library.
+0_check_correct/0_check_correct.c: example file using .so library.

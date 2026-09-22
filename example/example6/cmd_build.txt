@@ -1,9 +1,0 @@
-#
-gcc \
--I inc \
--L lib \
--l mars \
--lm \
--o example/example6/example6 \
-example/example6/example6.c \
--lgmp

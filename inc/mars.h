@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.09.21
+last modified: 2026.09.22
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -21,7 +21,7 @@ version: 1.0.0
 
 
 // constant:
-#define CONST_SIZE_DEFAULT_BNZ_WORDS 1 // default value of number of words used when allocate pData in BnzInit()
+#define CONST_SIZE_DEFAULT_MARSZ_WORDS 1 // default value of number of words used when allocate pData in Marsz_Init()
 #define CONST_SIGN_POSITIVE 1 //
 #define CONST_SIGN_NEGATIVE -1 //
 
@@ -32,13 +32,13 @@ version: 1.0.0
 
 // configure with the parameter:
 #if(PARM_SIZE_WORD == 64)
-typedef uint64_t bnword_t;
+typedef uint64_t marsword_t;
 #elif(PARM_SIZE_WORD == 32)
-typedef uint32_t bnword_t;
+typedef uint32_t marsword_t;
 #elif(PARM_SIZE_WORD == 16)
-typedef uint16_t bnword_t;
+typedef uint16_t marsword_t;
 #elif(PARM_SIZE_WORD == 8)
-typedef uint8_t bnword_t;
+typedef uint8_t marsword_t;
 #endif
 
 
@@ -54,46 +54,46 @@ typedef uint8_t bnword_t;
 
 
 // datatype:
-typedef struct __bnz_t{
+typedef struct __marsz_t{
     // signed integer type
-    bnword_t * pData; //
-    int32_t allocated; // ((sign) * (number of bnword_t in pData)), sign will be 1(0 or positive) or -1(negative)
-}_bnz_t;
-typedef _bnz_t bnz_t[1];
-typedef _bnz_t * bnzptr_t;
+    marsword_t * pData; //
+    int32_t allocated; // ((sign) * (number of marsword_t in pData)), sign will be 1(0 or positive) or -1(negative)
+}_marsz_t;
+typedef _marsz_t marsz_t[1];
+typedef _marsz_t * marszptr_t;
 
 
 // function prototype:
-// Bnh: utility function:
-MARS_API_EXPORT void BnhMemcpy(void * pOut, void * pIn, int32_t len);
-MARS_API_EXPORT void BnhMemset(void * pOut, uint8_t val, int32_t len);
-MARS_API_EXPORT int32_t BnhMemcmp(void * pIn1, void * pIn2, int32_t len);
-MARS_API_EXPORT void BnhZeroize(void * pIn, int32_t len);
-MARS_API_EXPORT int32_t BnhGetDigitsInBytes_LE(uint8_t * pBaIn, int32_t lenBaIn);
-MARS_API_EXPORT int32_t BnhGetDigitsInBytes_BE(uint8_t * pBaIn, int32_t lenBaIn);
-MARS_API_EXPORT int32_t BnhGetDigitsInBits_LE(uint8_t * pBaIn, int32_t lenBaIn);
-MARS_API_EXPORT int32_t BnhGetDigitsInBits_BE(uint8_t * pBaIn, int32_t lenBaIn);
+// Marsh_: utility function:
+MARS_API_EXPORT void Marsh_Memcpy(void * pOut, void * pIn, int32_t len);
+MARS_API_EXPORT void Marsh_Memset(void * pOut, uint8_t val, int32_t len);
+MARS_API_EXPORT int32_t Marsh_Memcmp(void * pIn1, void * pIn2, int32_t len);
+MARS_API_EXPORT void Marsh_Zeroize(void * pIn, int32_t len);
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_LE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_BE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_LE(uint8_t * pBaIn, int32_t lenBaIn);
+MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_BE(uint8_t * pBaIn, int32_t lenBaIn);
 
 
-// Bnz: signed integer related function:
-MARS_API_EXPORT void BnzInit(bnzptr_t pIn);
-MARS_API_EXPORT void BnzFinal(bnzptr_t pIn);
-MARS_API_EXPORT void BnzBa2Bn(bnzptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn, int32_t sign);
-MARS_API_EXPORT int32_t BnzBn2Ba(uint8_t * pBaOut, int32_t lenBaOut, bnzptr_t pIn);
-MARS_API_EXPORT int32_t BnzCompareAbs(bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzCompare(bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT void BnzAssign(bnzptr_t pOut, bnzptr_t pIn);
-MARS_API_EXPORT int32_t BnzSgn(bnzptr_t pIn);
-MARS_API_EXPORT int32_t BnzBitwiseAnd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzBitwiseOr(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzBitwiseXor(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzBitwiseNot(bnzptr_t pOut, bnzptr_t pIn);
-MARS_API_EXPORT int32_t BnzBitwiseLeftShift(bnzptr_t pOut, bnzptr_t pIn, int32_t shift);
-MARS_API_EXPORT int32_t BnzBitwiseRightShift(bnzptr_t pOut, bnzptr_t pIn, int32_t shift);
-MARS_API_EXPORT int32_t BnzAdd(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzSub(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzMul(bnzptr_t pOut, bnzptr_t pIn1, bnzptr_t pIn2);
-MARS_API_EXPORT int32_t BnzDiv(bnzptr_t pOut1, bnzptr_t pOut2, bnzptr_t pIn1, bnzptr_t pIn2);
+// Marsz_: signed integer related function:
+MARS_API_EXPORT void Marsz_Init(marszptr_t pIn);
+MARS_API_EXPORT void Marsz_Final(marszptr_t pIn);
+MARS_API_EXPORT void Marsz_Ba2Bn(marszptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn, int32_t sign);
+MARS_API_EXPORT int32_t Marsz_Bn2Ba(uint8_t * pBaOut, int32_t lenBaOut, marszptr_t pIn);
+MARS_API_EXPORT int32_t Marsz_CompareAbs(marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Compare(marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT void Marsz_Assign(marszptr_t pOut, marszptr_t pIn);
+MARS_API_EXPORT int32_t Marsz_Sgn(marszptr_t pIn);
+MARS_API_EXPORT int32_t Marsz_BitwiseAnd(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_BitwiseOr(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_BitwiseXor(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_BitwiseNot(marszptr_t pOut, marszptr_t pIn);
+MARS_API_EXPORT int32_t Marsz_BitwiseLeftShift(marszptr_t pOut, marszptr_t pIn, int32_t shift);
+MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(marszptr_t pOut, marszptr_t pIn, int32_t shift);
+MARS_API_EXPORT int32_t Marsz_Add(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Sub(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Mul(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Div(marszptr_t pOut1, marszptr_t pOut2, marszptr_t pIn1, marszptr_t pIn2);
 
 #endif
 // end code
