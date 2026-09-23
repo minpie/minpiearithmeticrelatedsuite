@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.09.22
+last modified: 2026.09.23
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -90,7 +90,7 @@ MARS_API_EXPORT void Marsh_Memcpy(
     */
     //
 
-    //
+    // check exception condition:
     if((!pOut) || (!pIn) || (!len)){
         // exception: pOut is NULL OR pIn is NULL OR len is 0
         return;
@@ -129,7 +129,7 @@ MARS_API_EXPORT void Marsh_Memset(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!len)){
         // exception: pOut is NULL OR len is 0
         return;
@@ -171,7 +171,7 @@ MARS_API_EXPORT int32_t Marsh_Memcmp(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pIn1) || (!pIn2) || (!len)){
         // exception: pIn1 is NULL OR pIn2 is NULL OR len is 0
         return 0;
@@ -208,7 +208,7 @@ MARS_API_EXPORT void Marsh_Zeroize(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!len)){
         // exception: pOut is NULL OR len is 0
         return;
@@ -244,7 +244,7 @@ MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_LE(
     Other info:
     - the byte data in (pBaIn) will be regarded as little endian.
     */
-    //
+    // check exception condition:
     if((!pBaIn) || (!lenBaIn)){
         // exception: pBaIn is NULL OR lenBaIn is zero.
         return 0;
@@ -287,7 +287,7 @@ MARS_API_EXPORT int32_t Marsh_GetDigitsInBytes_BE(
     Other info:
     - the byte data in (pBaIn) will be regarded as big endian.
     */
-    //
+    // check exception condition:
     if((!pBaIn) || (!lenBaIn)){
         // exception: pBaIn is NULL OR lenBaIn is zero.
         return 0;
@@ -331,7 +331,7 @@ MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_LE(
     Other info:
     - the byte data in (pBaIn) will be regarded as little endian.
     */
-    //
+    // check exception condition:
     if((!pBaIn) || (!lenBaIn)){
         // exception: pBaIn is NULL OR lenBaIn is zero.
         return 0;
@@ -387,7 +387,7 @@ MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_BE(
     Other info:
     - the byte data in (pBaIn) will be regarded as big endian.
     */
-    //
+    // check exception condition:
     if((!pBaIn) || (!lenBaIn)){
         // exception: pBaIn is NULL OR lenBaIn is zero.
         return 0;
@@ -441,7 +441,7 @@ MARS_API_EXPORT void Marsz_Init(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if(!pIn){
         // exception: pIn is NULL
         return;
@@ -482,7 +482,7 @@ MARS_API_EXPORT void Marsz_Final(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if(!pIn){
         // exception: pIn is NULL
         return;
@@ -530,7 +530,7 @@ MARS_API_EXPORT void Marsz_Ba2Bn(
     Other info:
     - the byte data in (pBaIn) will be regarded as big endian.
     */
-    //
+    // check exception condition:
     if((!pBaIn) || (!lenBaIn) || (!pOut)){
         // exception: pBaIn is NULL OR lenBaIn is zero OR pOut is NULL
         return;
@@ -588,7 +588,7 @@ MARS_API_EXPORT int32_t Marsz_Bn2Ba(
     Other info:
     - the number data will be stored to (pBaOut) as big-endian.
     */
-    //
+    // check exception condition:
     if((!pIn) || (!pBaOut) || (!lenBaOut)){
         // exception: pIn is NULL OR pBaOut is NULL OR lenBaOut is zero
         return 0;
@@ -631,7 +631,7 @@ MARS_API_EXPORT int32_t Marsz_CompareAbs(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pIn1) || (!pIn2)){
         // exception: pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -644,8 +644,7 @@ MARS_API_EXPORT int32_t Marsz_CompareAbs(
         // ABS(pIn1) < ABS(pIn2):
         return CONST_SIGN_NEGATIVE;
     }else{
-        // 워드 수 같음:
-        // else:
+        // else: 워드 수 같음
         for(int32_t i=0; i<ABS(pIn1->allocated); i++){
             if(*((pIn1->pData) + ABS(pIn1->allocated) - 1 - i) > *((pIn2->pData) + ABS(pIn1->allocated) - 1 - i)){
                 return CONST_SIGN_POSITIVE;
@@ -686,7 +685,7 @@ MARS_API_EXPORT int32_t Marsz_Compare(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pIn1) || (!pIn2)){
         // exception: pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -697,8 +696,7 @@ MARS_API_EXPORT int32_t Marsz_Compare(
     }else if((pIn1->allocated) < (pIn2->allocated)){
         return CONST_SIGN_NEGATIVE;
     }
-    // else:
-    // 부호, 워드 수 같음:
+    // else: 부호, 워드 수 같음
     int absCompared = 0;
     absCompared = Marsz_CompareAbs(pIn1, pIn2);
     if((pIn1->allocated) < 0){
@@ -709,6 +707,7 @@ MARS_API_EXPORT int32_t Marsz_Compare(
             return CONST_SIGN_POSITIVE;
         }
     }
+    // return:
     return absCompared;
 }
 
@@ -736,9 +735,7 @@ MARS_API_EXPORT void Marsz_Assign(
     Other info:
     - nope
     */
-    //
-
-    // return:
+    // check exception condition:
     if((!pOut) || (!pIn)){
         // exception: pOut is NULL OR pIn is NULL
         return;
@@ -783,7 +780,7 @@ MARS_API_EXPORT int32_t Marsz_Sgn(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if(!pIn){
         // exception: pIn is NULL
         return 0;
@@ -823,7 +820,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseAnd(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -831,10 +828,10 @@ MARS_API_EXPORT int32_t Marsz_BitwiseAnd(
 
     // else:
     for(int32_t i=0; i<(MIN(ABS(pIn1->allocated), ABS(pIn2->allocated))); i++){
-        *((pOut->pData) + i) = *((pIn1->pData) + i) & *((pIn2->pData) + i);
+        *((pOut->pData) + i) = *((pIn1->pData) + i) & *((pIn2->pData) + i); // word-wise AND
     }
     for(int32_t i=(MIN(ABS(pIn1->allocated), ABS(pIn2->allocated))); i<(MAX(ABS(pIn1->allocated), ABS(pIn2->allocated))); i++){
-        *((pOut->pData) + i) = 0;
+        *((pOut->pData) + i) = 0; // x AND 0 = 0
     }
 
     // return:
@@ -868,7 +865,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseOr(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -887,11 +884,11 @@ MARS_API_EXPORT int32_t Marsz_BitwiseOr(
         t2 = pIn1;
     }
 
-    Marsz_Assign(t3, t1);
+    Marsz_Assign(t3, t1); // t3 = t1
     for(int32_t i=0; i<ABS(t2->allocated); i++){
-        *((t3->pData) + i) = *((t1->pData) + i) | *((t2->pData) + i);
+        *((t3->pData) + i) = *((t1->pData) + i) | *((t2->pData) + i); // word-wise OR
     }
-    Marsz_Assign(pOut, t3);
+    Marsz_Assign(pOut, t3); // pOut = t3
 
     // return:
     Marsz_Final(t3);
@@ -925,7 +922,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseXor(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -944,11 +941,11 @@ MARS_API_EXPORT int32_t Marsz_BitwiseXor(
         t2 = pIn1;
     }
 
-    Marsz_Assign(t3, t1);
+    Marsz_Assign(t3, t1); // t3 = t1
     for(int32_t i=0; i<ABS(t2->allocated); i++){
-        *((t3->pData) + i) = *((t1->pData) + i) ^ *((t2->pData) + i);
+        *((t3->pData) + i) = *((t1->pData) + i) ^ *((t2->pData) + i); // word-wise XOR
     }
-    Marsz_Assign(pOut, t3);
+    Marsz_Assign(pOut, t3); // pOut = t3
 
 
     // return:
@@ -980,7 +977,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseNot(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn)){
         // exception: pOut is NULL OR pIn is NULL
         return 0;
@@ -990,9 +987,9 @@ MARS_API_EXPORT int32_t Marsz_BitwiseNot(
     marsz_t t1;
     Marsz_Init(t1);
     for(int32_t i=0; i<(ABS(pIn->allocated)); i++){
-        *((t1->pData) + i) = ~(*((pIn->pData) + i));
+        *((t1->pData) + i) = ~(*((pIn->pData) + i)); // word-wise NOT
     }
-    Marsz_Assign(pOut, t1);
+    Marsz_Assign(pOut, t1); // pOut = t1
 
     // return:
     Marsz_Final(t1);
@@ -1026,7 +1023,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseLeftShift(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn)){
         // exception: pOut is NULL OR pIn is NULL
         return 0;
@@ -1036,11 +1033,11 @@ MARS_API_EXPORT int32_t Marsz_BitwiseLeftShift(
     marsz_t t1;
     Marsz_Init(t1);
 
-    Marsz_Assign(t1, pIn);
+    Marsz_Assign(t1, pIn); // t1 = pIn
     for(int32_t i=0; i<shift; i++){
         Marsz_Add(t1, t1, t1); // t1 = t1 << 1
     }
-    Marsz_Assign(pOut, t1);
+    Marsz_Assign(pOut, t1); // pOut = t1
     
     Marsz_Final(t1);
     return 0;
@@ -1073,14 +1070,15 @@ MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn)){
         // exception: pOut is NULL OR pIn is NULL
         return 0;
     }
 
     if(!shift){
-        Marsz_Assign(pOut, pIn);
+        // shift is 0, so just assign pIn to pOut
+        Marsz_Assign(pOut, pIn); // pOut = pIn
         return 0;
     }
 
@@ -1098,6 +1096,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
     t1->pData = newData;
     t1->allocated = ABS(pIn->allocated);
 
+    // shift operation:
     for(int32_t i=(ABS(pIn->allocated) - 1); i>=0; i--){
         int32_t srcidx = i;
         int32_t destidx = srcidx - (shift / (sizeof(marsword_t) << 3));
@@ -1113,6 +1112,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
         }
     }
 
+    // remove zero filled words:
     for(int32_t i=(ABS(t1->allocated) - 1); i>=0; i--){
         if(*((t1->pData) + i)){
             if(i == (ABS(t1->allocated) - 1)){
@@ -1123,21 +1123,26 @@ MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
             break;
         }
     }
+    // return result:
     if(nonZeroIdx == -2){
+        // no zero filled words:
         t1->allocated = orgSign * (t1->allocated);
-        Marsz_Assign(pOut, t1);
+        Marsz_Assign(pOut, t1); // pOut = t1
     }else if(nonZeroIdx != -1){
+        // some zero filled words:
         newData = (marsword_t *)malloc((sizeof(marsword_t) * (nonZeroIdx + 1)));
         Marsh_Zeroize((void *)(newData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
         Marsh_Memcpy((void *)(newData), (void *)(t1->pData), (sizeof(marsword_t) * (nonZeroIdx + 1)));
         free(t1->pData);
         t1->pData = newData;
         t1->allocated = orgSign * (nonZeroIdx + 1);
-        Marsz_Assign(pOut, t1);
+        Marsz_Assign(pOut, t1); // pOut = t1
     }else{
-        Marsz_Assign(pOut, mars_zero);
+        // all words are zero:
+        Marsz_Assign(pOut, mars_zero); // pOut = 0
     }
 
+    // return:
     Marsz_Final(t1);
     return 0;
 }
@@ -1169,7 +1174,7 @@ MARS_API_EXPORT int32_t Marsz_Add(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -1226,7 +1231,7 @@ MARS_API_EXPORT int32_t Marsz_Add(
             *((t1->pData) + tempIdx) = s;
         }
 
-        // add rest of bigger one:
+        // add rest of bigger one with carry:
         if(ABS(pIn1->allocated) > ABS(pIn2->allocated)){
             t2 = pIn1;
         }else if(ABS(pIn1->allocated) < ABS(pIn2->allocated)){
@@ -1315,7 +1320,7 @@ MARS_API_EXPORT int32_t Marsz_Sub(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -1342,18 +1347,18 @@ MARS_API_EXPORT int32_t Marsz_Sub(
         compareResult = Marsz_CompareAbs(pIn1, pIn2);
         if(compareResult == CONST_SIGN_POSITIVE){
             // ABS(pIn1) > ABS(pIn2):
-            Marsz_Assign(tBig, pIn1);
-            Marsz_Assign(tSmall, pIn2);
+            Marsz_Assign(tBig, pIn1); // tBig = pIn1
+            Marsz_Assign(tSmall, pIn2); // tSmall = pIn2
             pSmall = pIn2;
         }else if(compareResult == CONST_SIGN_NEGATIVE){
             // ABS(pIn1) < ABS(pIn2):
-            Marsz_Assign(tBig, pIn2);
-            Marsz_Assign(tSmall, pIn1);  
+            Marsz_Assign(tBig, pIn2); // tBig = pIn2
+            Marsz_Assign(tSmall, pIn1); // tSmall = pIn1
             pSmall = pIn1;
         }else{
             // ABS(pIn1) == ABS(pIn2):
-            Marsz_Assign(tBig, pIn1);
-            Marsz_Assign(tSmall, pIn2);  
+            Marsz_Assign(tBig, pIn1); // tBig = pIn1
+            Marsz_Assign(tSmall, pIn2); // tSmall = pIn2
             pSmall = NULL;
         }
         
@@ -1388,7 +1393,7 @@ MARS_API_EXPORT int32_t Marsz_Sub(
             *((t1->pData) + tempIdx) = s;
         }
 
-        // add rest of bigger one:
+        // substract borrow to rest of bigger one:
         for(int32_t i=0; i<((ABS(tBig->allocated)) - (ABS(tSmall->allocated))); i++){
             tempIdx = i + (ABS(tSmall->allocated));
             s = *((tBig->pData) + tempIdx) - b;
@@ -1422,7 +1427,7 @@ MARS_API_EXPORT int32_t Marsz_Sub(
         }
 
         // t1 to pOut:
-        Marsz_Assign(pOut, t1);
+        Marsz_Assign(pOut, t1); // pOut = t1
         Marsz_Final(tBig);
         Marsz_Final(tSmall);
         Marsz_Final(t1);
@@ -1461,7 +1466,7 @@ MARS_API_EXPORT int32_t Marsz_Mul(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut) || (!pIn1) || (!pIn2)){
         // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
@@ -1484,7 +1489,7 @@ MARS_API_EXPORT int32_t Marsz_Mul(
             Marsz_Add(marsn_result, marsn_result, marsn_temp); // marsn_result += marsn_temp
         }
         if(i < ((sizeof(marsword_t) * ABS(pIn1->allocated) << 3) - 1)){
-            // 마지막 루프시 (marsn_temp *= 2) 생략 위함
+            // 마지막 루프시 (marsn_temp *= 2) 생략
             Marsz_Add(marsn_temp, marsn_temp, marsn_temp); // marsn_temp *= 2
         }
     }
@@ -1549,14 +1554,14 @@ MARS_API_EXPORT int32_t Marsz_Div(
     Other info:
     - nope
     */
-    //
+    // check exception condition:
     if((!pOut1) || (!pOut2) || (!pIn1) || (!pIn2)){
         // exception: pOut1 is NULL OR pOut2 is NULL OR pIn1 is NULL OR pIn2 is NULL
         return 0;
     }
     // else:
     if(Marsz_Compare(pIn2, mars_zero) == 0){
-        // exception: pIn2 == 0
+        // exception: pIn2 == 0, division by zero
         return 0;
     }
 
@@ -1605,7 +1610,7 @@ MARS_API_EXPORT int32_t Marsz_Div(
         }
         Marsz_BitwiseRightShift(marsn_t1, marsn_t1, 1); // marsn_t1 = marsn_t1 >> 1
     }
-    Marsz_BitwiseRightShift(marsn_r, marsn_r, n);
+    Marsz_BitwiseRightShift(marsn_r, marsn_r, n); // marsn_r = marsn_r >> n
     Marsz_Assign(pOut1, marsn_q); // pOut1 = marsn_q
     Marsz_Assign(pOut2, marsn_r); // pOut2 = marsn_r
     
@@ -1645,5 +1650,4 @@ MARS_API_EXPORT int32_t Marsz_Div(
     // end:
     return 0;
 }
-
 // end code
