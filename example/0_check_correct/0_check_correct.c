@@ -2,7 +2,7 @@
 0_check_correct.c
 
 created: 2026.09.22
-last modified: 2026.09.22
+last modified: 2026.09.30
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -20,9 +20,21 @@ version: 1.0.0
 // define:
 #define MAX_N_BYTES 256
 
-// function:
-void TestPrintHex(void * pData, uint32_t len){
-    for(uint32_t i=0; i<len; i++){
+// for dev:
+void Marsh_DbgPrintHex_BE(void * pData, int32_t len){
+    // print as big endian.
+    for(int32_t i=len-1; i>=0; i--){
+        if((i != len-1) && (!((i + 1) % 8))){
+            printf(" ");
+        }
+        printf("%02x", ((uint8_t *)pData)[i]);
+    }
+    return;
+}
+
+void Marsh_DbgPrintHex_LE(void * pData, int32_t len){
+    // print as little endian.
+    for(int32_t i=0; i<len; i++){
         if(i && (!(i % 8))){
             printf(" ");
         }
@@ -31,6 +43,17 @@ void TestPrintHex(void * pData, uint32_t len){
     return;
 }
 
+#define DbgPrintMarsz(pIn) {\
+    printf("%s", (((pIn)->allocated < 0) ? "-" : "+"));\
+    Marsh_DbgPrintHex_BE((pIn)->pData, (sizeof(marsword_t) * ABS((pIn)->allocated))); \
+}
+//
+
+#define TestPrintHex(pData, len) Marsh_DbgPrintHex_LE((void *)(pData), (uint32_t)(len))
+// end for dev
+
+
+// function:
 void GetRandom(uint8_t *pOut, uint32_t nOfBytes){
     for(uint32_t i=0; i<nOfBytes; i++){
         *(pOut + i) = (uint8_t)(rand() & 0xff);
@@ -225,7 +248,6 @@ void Test_CrossValidation(uint64_t n){
         ){
             // ba_case1 != ba_case2:
             errCase1++;
-            //printf("error in addition        : i=%lu, j=%lu\n", i, j);
             printf("ba_case1 = %s", (ba_case1_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case1, MAX_N_BYTES); printf("\n");
             printf("ba_case2 = %s", (ba_case2_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case2, MAX_N_BYTES); printf("\n");
             flg = 1;
@@ -236,7 +258,6 @@ void Test_CrossValidation(uint64_t n){
         ){
             // ba_case3 != ba_case4:
             errCase3++;
-            //printf("error in substitution    : i=%lu, j=%lu\n", i, j);
             printf("ba_case3 = %s", (ba_case3_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case3, MAX_N_BYTES); printf("\n");
             printf("ba_case4 = %s", (ba_case4_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case4, MAX_N_BYTES); printf("\n");
             flg = 1;
@@ -247,7 +268,6 @@ void Test_CrossValidation(uint64_t n){
         ){
             // ba_case5 != ba_case6:
             errCase5++;
-            //printf("error in multiplication  : i=%lu, j=%lu\n", i, j);
             printf("ba_case5 = %s", (ba_case5_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case5, MAX_N_BYTES); printf("\n");
             printf("ba_case6 = %s", (ba_case6_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case6, MAX_N_BYTES); printf("\n");
             flg = 1;
@@ -260,7 +280,6 @@ void Test_CrossValidation(uint64_t n){
         ){
             // ba_case7 != ba_case8:
             errCase7++;
-            //printf("error in division  : i=%lu, j=%lu\n", i, j);
             printf("ba_case7_q = %s", (ba_case7_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_q, MAX_N_BYTES); printf("\n");
             printf("ba_case8_q = %s", (ba_case8_q_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case8_q, MAX_N_BYTES); printf("\n");
             printf("ba_case7_r = %s", (ba_case7_r_sig == CONST_SIGN_POSITIVE) ? "+" : "-"); TestPrintHex(ba_case7_r, MAX_N_BYTES); printf("\n");
@@ -271,7 +290,6 @@ void Test_CrossValidation(uint64_t n){
             printf("a          = "); TestPrintHex(a, MAX_N_BYTES); printf("\n");
             printf("b          = "); TestPrintHex(b, MAX_N_BYTES); printf("\n");
             printf("\n");
-            //break;
         }
     }
 
@@ -621,8 +639,8 @@ void Test_CrossValidation_Custom(void){
 
 // main():
 int main(void){
-    Test_CrossValidation(10000000);
-    //Test_CrossValidation(1000);
+    //Test_CrossValidation(10000000);
+    Test_CrossValidation(100000);
     //Test_CrossValidation_Custom();
     return 0;
 }

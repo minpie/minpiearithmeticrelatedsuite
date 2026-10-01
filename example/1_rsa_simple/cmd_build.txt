@@ -1,0 +1,8 @@
+#
+gcc \
+-I inc \
+-L lib \
+-l mars \
+-lm \
+-o example/1_rsa_simple/1_rsa_simple \
+example/1_rsa_simple/1_rsa_simple.c

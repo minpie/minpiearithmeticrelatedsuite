@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.09.23
+last modified: 2026.10.01
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -17,46 +17,16 @@ const marsword_t _marsword_zero[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {0, };
 const marsword_t _marsword_one[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {1, };
 const marsz_t mars_zero = {
     // pData:
-    _marsword_zero,
+    (marsword_t *)_marsword_zero,
     // allocated:
     (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
 }; // constant for 0
 const marsz_t mars_one = {
     // pData:
-    _marsword_one,
+    (marsword_t *)_marsword_one,
     // allocated:
     (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
 }; // constant for 1
-
-
-// for dev:
-void DbgPrintHex_BE(void * pData, int32_t len){
-    // print as big endian.
-    for(int32_t i=len-1; i>=0; i--){
-        if((i != len-1) && (!((i + 1) % 8))){
-            printf(" ");
-        }
-        printf("%02x", ((uint8_t *)pData)[i]);
-    }
-    return;
-}
-
-void DbgPrintHex_LE(void * pData, int32_t len){
-    // print as little endian.
-    for(int32_t i=0; i<len; i++){
-        if(i && (!(i % 8))){
-            printf(" ");
-        }
-        printf("%02x", ((uint8_t *)pData)[i]);
-    }
-    return;
-}
-
-#define DbgPrintMarsz_(pIn) {\
-    printf("%s", (((pIn)->allocated < 0) ? "-" : "+"));\
-    DbgPrintHex_BE((pIn)->pData, (sizeof(marsword_t) * ABS((pIn)->allocated))); \
-}
-// end for dev
 
 
 // function:
@@ -697,7 +667,7 @@ MARS_API_EXPORT int32_t Marsz_Compare(
         return CONST_SIGN_NEGATIVE;
     }
     // else: 부호, 워드 수 같음
-    int absCompared = 0;
+    int32_t absCompared = 0;
     absCompared = Marsz_CompareAbs(pIn1, pIn2);
     if((pIn1->allocated) < 0){
         // 음수이므로 결과 반전
@@ -1139,7 +1109,7 @@ MARS_API_EXPORT int32_t Marsz_BitwiseRightShift(
         Marsz_Assign(pOut, t1); // pOut = t1
     }else{
         // all words are zero:
-        Marsz_Assign(pOut, mars_zero); // pOut = 0
+        Marsz_Assign(pOut, (marszptr_t)mars_zero); // pOut = 0
     }
 
     // return:
@@ -1420,14 +1390,17 @@ MARS_API_EXPORT int32_t Marsz_Sub(
             free(t1->pData);
             t1->pData = newData;
             t1->allocated = (nonZeroIdx + 1);
-        }
 
-        if(pSmall == pIn1){
-            t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
-        }
+            if(pSmall == pIn1){
+                t1->allocated = (CONST_SIGN_NEGATIVE) * (t1->allocated);
+            }
 
-        // t1 to pOut:
-        Marsz_Assign(pOut, t1); // pOut = t1
+            // t1 to pOut:
+            Marsz_Assign(pOut, t1); // pOut = t1
+        }else{
+            // t1 is zero:
+            Marsz_Assign(pOut, (marszptr_t)mars_zero); // pOut = 0
+        }
         Marsz_Final(tBig);
         Marsz_Final(tSmall);
         Marsz_Final(t1);
@@ -1560,14 +1533,14 @@ MARS_API_EXPORT int32_t Marsz_Div(
         return 0;
     }
     // else:
-    if(Marsz_Compare(pIn2, mars_zero) == 0){
+    if(Marsz_Compare(pIn2, (marszptr_t)mars_zero) == 0){
         // exception: pIn2 == 0, division by zero
         return 0;
     }
 
     //
     ///*
-    // 구현 2: restoring division
+    // 구현 2: restoring division: 참을만함
 
     //R := N
     //D := D << n            -- R and D need twice the word width of N and Q
@@ -1585,14 +1558,14 @@ MARS_API_EXPORT int32_t Marsz_Div(
     //
 
     marsz_t marsn_q, marsn_r, marsn_d, marsn_t1;
-    int32_t n = Marsh_GetDigitsInBits_LE(pIn1->pData, (sizeof(marsword_t) * ABS(pIn1->allocated)));
+    int32_t n = Marsh_GetDigitsInBits_LE((uint8_t *)(pIn1->pData), (sizeof(marsword_t) * ABS(pIn1->allocated)));
 
     Marsz_Init(marsn_q);
     Marsz_Init(marsn_r);
     Marsz_Init(marsn_d);
     Marsz_Init(marsn_t1);
     
-    Marsz_Assign(marsn_t1, mars_one); // marsn_t1 = 1
+    Marsz_Assign(marsn_t1, (marszptr_t)mars_one); // marsn_t1 = 1
     Marsz_BitwiseLeftShift(marsn_t1, marsn_t1, n-1); // marsn_t1 = 2 ^ (n-1)
 
     Marsz_Assign(marsn_r, pIn1); // marsn_r = pIn1
@@ -1602,7 +1575,7 @@ MARS_API_EXPORT int32_t Marsz_Div(
         Marsz_Add(marsn_r, marsn_r, marsn_r); // marsn_r = 2 * marsn_r
         Marsz_Sub(marsn_r, marsn_r, marsn_d); // marsn_r = marsn_r - marsn_d
 
-        if(Marsz_Compare(marsn_r, mars_zero) >= 0){
+        if(Marsz_Compare(marsn_r, (marszptr_t)mars_zero) >= 0){
             //Marsz_BitwiseOr(marsn_q, marsn_q, marsn_t1); // q[bit i] = 1
             Marsz_Add(marsn_q, marsn_q, marsn_t1); // q[bit i] = 1
         }else{
@@ -1644,6 +1617,239 @@ MARS_API_EXPORT int32_t Marsz_Div(
     Marsz_Final(marsn_temp);
     Marsz_Final(marsn_q);
     Marsz_Final(marsn_r);    
+    */
+    //
+
+    // end:
+    return 0;
+}
+
+MARS_API_EXPORT int32_t Marsz_Mod(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
+)
+{
+    /*
+    int32_t Marsz_Mod(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
+    )
+
+    Arg:
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
+
+    Do:
+    - Do (pIn1) / (pIn2), r = (pOut)
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    // check exception condition:
+    if((!pOut) || (!pIn1) || (!pIn2)){
+        // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+    if(Marsz_Compare(pIn2, (marszptr_t)mars_zero) == 0){
+        // exception: pIn2 == 0, division by zero
+        return 0;
+    }
+
+    //
+    ///*
+    // 구현 1: restoring division: 참을만함
+    //R := N
+    //D := D << n            -- R and D need twice the word width of N and Q
+    //for i := n − 1 .. 0 do  -- For example 31..0 for 32 bits
+    //R := 2 * R − D          -- Trial subtraction from shifted value (multiplication by 2 is a shift in binary representation)
+    //if R >= 0 then
+    //    q(i) := 1          -- Result-bit 1
+    //else
+    //    q(i) := 0          -- Result-bit 0
+    //    R := R + D         -- New partial remainder is (restored) shifted value
+    //end
+    //end
+    //
+    //-- Where: N = numerator, D = denominator, n = #bits, R = partial remainder, q(i) = bit #i of quotient
+    //
+
+    marsz_t marsn_r, marsn_d, marsn_t1;
+    int32_t n = Marsh_GetDigitsInBits_LE((uint8_t *)(pIn1->pData), (sizeof(marsword_t) * ABS(pIn1->allocated)));
+
+    Marsz_Init(marsn_r);
+    Marsz_Init(marsn_d);
+    Marsz_Init(marsn_t1);
+    
+    Marsz_Assign(marsn_t1, (marszptr_t)mars_one); // marsn_t1 = 1
+    Marsz_BitwiseLeftShift(marsn_t1, marsn_t1, n-1); // marsn_t1 = 2 ^ (n-1)
+
+    Marsz_Assign(marsn_r, pIn1); // marsn_r = pIn1
+    Marsz_BitwiseLeftShift(marsn_d, pIn2, n); // marsn_d = pIn2 << n
+    for(int32_t i=(n-1); i>=0; i--){
+        // marsn_r = 2 * marsn_r - marsn_d :
+        Marsz_Add(marsn_r, marsn_r, marsn_r); // marsn_r = 2 * marsn_r
+        Marsz_Sub(marsn_r, marsn_r, marsn_d); // marsn_r = marsn_r - marsn_d
+
+        if(Marsz_Compare(marsn_r, (marszptr_t)mars_zero) < 0){
+            Marsz_Add(marsn_r, marsn_r, marsn_d); // marsn_r = marsn_r + marsn_d
+        }
+        Marsz_BitwiseRightShift(marsn_t1, marsn_t1, 1); // marsn_t1 = marsn_t1 >> 1
+    }
+    Marsz_BitwiseRightShift(marsn_r, marsn_r, n); // marsn_r = marsn_r >> n
+    Marsz_Assign(pOut, marsn_r); // pOut = marsn_r
+    
+    Marsz_Final(marsn_r);
+    Marsz_Final(marsn_d);
+    Marsz_Final(marsn_t1);
+    //*/
+    //
+
+    // end:
+    return 0;
+}
+
+MARS_API_EXPORT int32_t Marsz_Exp(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2
+)
+{
+    /*
+    int32_t Marsz_Exp(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
+    )
+
+    Arg:
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
+
+    Do:
+    - Do (pOut) = (pIn1) ^ (pIn2), "exponentiation"
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    // check exception condition:
+    if((!pOut) || (!pIn1) || (!pIn2)){
+        // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL
+        return 0;
+    }
+    // else:
+
+    //
+    ///*
+    // 구현 1: naive 구현 1
+    marsz_t t1, i;
+    Marsz_Init(t1);
+    Marsz_Init(i);
+    Marsz_Assign(t1, (marszptr_t)mars_one); // t1 = 1
+    while(Marsz_Compare(pIn2, i)){
+        Marsz_Mul(t1, t1, pIn1); // t1 = t1 * pIn1
+        Marsz_Add(i, i, (marszptr_t)mars_one); // i++
+    }
+
+    Marsz_Assign(pOut, t1); // pOut = t1
+    Marsz_Final(t1);
+    Marsz_Final(i);
+    //*/
+    //
+
+    // end:
+    return 0;
+}
+
+MARS_API_EXPORT int32_t Marsz_ModExp(
+    marszptr_t pOut,
+    marszptr_t pIn1,
+    marszptr_t pIn2,
+    marszptr_t pIn3
+)
+{
+    /*
+    int32_t Marsz_ModExp(
+        marszptr_t pOut,
+        marszptr_t pIn1,
+        marszptr_t pIn2
+    )
+
+    Arg:
+    - pOut: target (marsz_t) object output pointer
+    - pIn1: target (marsz_t) object input 1 pointer
+    - pIn2: target (marsz_t) object input 2 pointer
+    - pIn3: target (marsz_t) object input 3 pointer
+
+    Do:
+    - Do (pOut) = ((pIn1) ^ (pIn2)) mod (pIn3), "modulo exponentiation"
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    // check exception condition:
+    if((!pOut) || (!pIn1) || (!pIn2) || (!pIn3)){
+        // exception: pOut is NULL OR pIn1 is NULL OR pIn2 is NULL OR pIn3 is NULL
+        return 0;
+    }
+    // else:
+
+    //
+    ///*
+    // 구현 2:  구현 2:
+    marsz_t t1, t2;
+    Marsz_Init(t1);
+    Marsz_Init(t2);
+
+    Marsz_Assign(t1, (marszptr_t)mars_one); // t1 = 1
+    Marsz_Assign(t2, pIn1); // t2 = pIn1
+    for(int32_t i=0; i<(sizeof(marsword_t) * ABS(pIn2->allocated) << 3); i++){
+        if(((*((pIn2->pData) + (i / (sizeof(marsword_t) << 3))) >> (i % (sizeof(marsword_t) << 3))) & 1) == 1){
+            // pIn2[i] == 1:
+            Marsz_Mul(t1, t1, t2); // t1 = t1 * t2
+            Marsz_Mod(t1, t1, pIn3); // t1 = t1 mod pIn3
+        }
+        Marsz_Mul(t2, t2, t2); // t2 = t2 * t2
+        Marsz_Mod(t2, t2, pIn3); // t2 = t2 mod pIn3
+    }
+
+    //
+    Marsz_Assign(pOut, t1); // pOut = t1
+    
+    Marsz_Final(t1);
+    Marsz_Final(t2);
+    //*/
+    //
+
+    //
+    /*
+    // 구현 1: naive 구현 1: 너무 느림
+    marsz_t t1, i;
+    Marsz_Init(t1);
+    Marsz_Init(i);
+    Marsz_Assign(t1, (marszptr_t)mars_one); // t1 = 1
+    while(Marsz_Compare(pIn2, i)){
+        Marsz_Mul(t1, t1, pIn1); // t1 = t1 * pIn1
+        Marsz_Mod(t1, t1, pIn3); // t1 = t1 mod pIn3
+        Marsz_Add(i, i, (marszptr_t)mars_one); // i++
+    }
+
+    Marsz_Assign(pOut, t1); // pOut = t1
+    Marsz_Final(t1);
+    Marsz_Final(i);
     */
     //
 

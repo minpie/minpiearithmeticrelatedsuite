@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.09.22
+last modified: 2026.10.01
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -94,6 +94,9 @@ MARS_API_EXPORT int32_t Marsz_Add(marszptr_t pOut, marszptr_t pIn1, marszptr_t p
 MARS_API_EXPORT int32_t Marsz_Sub(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
 MARS_API_EXPORT int32_t Marsz_Mul(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
 MARS_API_EXPORT int32_t Marsz_Div(marszptr_t pOut1, marszptr_t pOut2, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Mod(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_Exp(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2);
+MARS_API_EXPORT int32_t Marsz_ModExp(marszptr_t pOut, marszptr_t pIn1, marszptr_t pIn2, marszptr_t pIn3);
 
 #endif
 // end code

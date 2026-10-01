@@ -1,2 +1,3 @@
 #
-0_check_correct/0_check_correct.c: example file using .so library.
+0_check_correct/0_check_correct.c: example file to check the library calculates correctly with compare GNU GMP.
+1_rsa_simple/1_rsa_simple.c: example file RSA simply implemented.
