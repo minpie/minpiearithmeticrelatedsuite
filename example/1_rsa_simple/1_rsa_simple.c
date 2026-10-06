@@ -2,7 +2,7 @@
 1_rsa_simple.c
 
 created: 2026.09.30
-last modified: 2026.10.01
+last modified: 2026.10.06
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -129,12 +129,7 @@ void GetGcd(marszptr_t result, marszptr_t a, marszptr_t b)
     // ## a, b의 GCD(최대공약수) 구하는 함수
     // 유클리드 알고리즘 사용
     marsz_t r, r1, r2, q, tmp1, tmp2;
-    Marsz_Init(r);
-    Marsz_Init(r1);
-    Marsz_Init(r2);
-    Marsz_Init(q);
-    Marsz_Init(tmp1);
-    Marsz_Init(tmp2);
+    Marsz_Inits(r, r1, r2, q, tmp1, tmp2, NULL);
 
     Marsz_Assign(r1, a);
     Marsz_Assign(r2, b);
@@ -148,28 +143,14 @@ void GetGcd(marszptr_t result, marszptr_t a, marszptr_t b)
     }
     Marsz_Assign(result, r1); // result = r1
 
-    Marsz_Final(r);
-    Marsz_Final(r1);
-    Marsz_Final(r2);
-    Marsz_Final(q);
-    Marsz_Final(tmp1);
-    Marsz_Final(tmp2);
+    Marsz_Finals(r, r1, r2, q, tmp1, tmp2, NULL);
 }
 void GetModularMultiplicativeInverse(marszptr_t a_1, marszptr_t n, marszptr_t a)
 {
     // ## 모듈러 곱셈 역 구하기
     // 확장 유클리드 알고리즘 사용
     marsz_t q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3;
-    Marsz_Init(q);
-    Marsz_Init(r1);
-    Marsz_Init(r2);
-    Marsz_Init(r);
-    Marsz_Init(t);
-    Marsz_Init(t1);
-    Marsz_Init(t2);
-    Marsz_Init(tmp1);
-    Marsz_Init(tmp2);
-    Marsz_Init(tmp3);
+    Marsz_Inits(q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3, NULL);
     Marsz_Assign(r1, n);    // r1 = n;
     Marsz_Assign(r2, a);    // r2 = a
     Marsz_Assign(t1, (marszptr_t)n_mars_zero); // t1 = 0
@@ -194,26 +175,12 @@ void GetModularMultiplicativeInverse(marszptr_t a_1, marszptr_t n, marszptr_t a)
     {
         Marsz_Add(a_1, n, a_1);
     }
-    Marsz_Final(q);
-    Marsz_Final(r1);
-    Marsz_Final(r2);
-    Marsz_Final(r);
-    Marsz_Final(t);
-    Marsz_Final(t1);
-    Marsz_Final(t2);
-    Marsz_Final(tmp1);
-    Marsz_Final(tmp2);
-    Marsz_Final(tmp3);
+    Marsz_Finals(q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3, NULL);
 }
 void KeyGeneration(marszptr_t e, marszptr_t d, marszptr_t p, marszptr_t q)
 {
     marsz_t n, phi_n, i, tmp1, tmp2, n65537;
-    Marsz_Init(n);
-    Marsz_Init(phi_n);
-    Marsz_Init(i);
-    Marsz_Init(tmp1);
-    Marsz_Init(tmp2);
-    Marsz_Init(n65537);
+    Marsz_Inits(n, phi_n, i, tmp1, tmp2, n65537, NULL);
 
     // set i=2:
     Marsz_Assign(i, (marszptr_t)n_mars_one);
@@ -254,12 +221,7 @@ void KeyGeneration(marszptr_t e, marszptr_t d, marszptr_t p, marszptr_t q)
     printf("Done: Get d\n");
 
     // end:
-    Marsz_Final(n);
-    Marsz_Final(phi_n);
-    Marsz_Final(i);
-    Marsz_Final(tmp1);
-    Marsz_Final(tmp2);
-    Marsz_Final(n65537);
+    Marsz_Finals(n, phi_n, i, tmp1, tmp2, n65537, NULL);
 }
 
 void Encryption(marszptr_t cipher, marszptr_t plain, marszptr_t n, marszptr_t e)
@@ -286,14 +248,7 @@ void SimpleRsa(void){
     uint8_t ba_q[256] = {0, };
     uint8_t ba_plain[256] = {0, };
     int32_t siz_p, siz_q, siz_plain;
-    Marsz_Init(p);
-    Marsz_Init(q);
-    Marsz_Init(n);
-    Marsz_Init(e);
-    Marsz_Init(d);
-    Marsz_Init(plain);
-    Marsz_Init(cipher);
-    Marsz_Init(plain2);
+    Marsz_Inits(p, q, n, e, d, plain, cipher, plain2, NULL);
 
 
     /*
@@ -389,14 +344,7 @@ void SimpleRsa(void){
     printf("original plain == decrypted plain: %d\n", !Marsz_Compare(plain, plain2));
 
     // end:
-    Marsz_Final(p);
-    Marsz_Final(q);
-    Marsz_Final(n);
-    Marsz_Final(e);
-    Marsz_Final(d);
-    Marsz_Final(plain);
-    Marsz_Final(cipher);
-    Marsz_Final(plain2);
+    Marsz_Inits(p, q, n, e, d, plain, cipher, plain2, NULL);
 
     // return:
     return;

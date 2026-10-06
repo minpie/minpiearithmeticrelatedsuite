@@ -2,7 +2,7 @@
 mars.h
 
 created: 2026.02.16
-last modified: 2026.10.01
+last modified: 2026.10.06
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -18,6 +18,7 @@ version: 1.0.0
 #include <malloc.h>
 #include <math.h>
 #include <string.h>
+#include <stdarg.h>
 
 
 // constant:
@@ -78,6 +79,8 @@ MARS_API_EXPORT int32_t Marsh_GetDigitsInBits_BE(uint8_t * pBaIn, int32_t lenBaI
 // Marsz_: signed integer related function:
 MARS_API_EXPORT void Marsz_Init(marszptr_t pIn);
 MARS_API_EXPORT void Marsz_Final(marszptr_t pIn);
+MARS_API_EXPORT void Marsz_Inits(marszptr_t pIn, ...);
+MARS_API_EXPORT void Marsz_Finals(marszptr_t pIn, ...);
 MARS_API_EXPORT void Marsz_Ba2Bn(marszptr_t pOut, uint8_t * pBaIn, int32_t lenBaIn, int32_t sign);
 MARS_API_EXPORT int32_t Marsz_Bn2Ba(uint8_t * pBaOut, int32_t lenBaOut, marszptr_t pIn);
 MARS_API_EXPORT int32_t Marsz_CompareAbs(marszptr_t pIn1, marszptr_t pIn2);

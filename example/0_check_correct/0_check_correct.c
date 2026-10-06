@@ -2,7 +2,7 @@
 0_check_correct.c
 
 created: 2026.09.22
-last modified: 2026.09.30
+last modified: 2026.10.06
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -106,10 +106,8 @@ void Test_CrossValidation(uint64_t n){
     int flg = 0;
 
     //
-    mpz_t gn_a, gn_b;
-    mpz_t gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
-    marsz_t marsn_a, marsn_b;
-    marsz_t marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
+    mpz_t gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
+    marsz_t marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
     uint8_t a[MAX_N_BYTES] = {0, };
     uint8_t b[MAX_N_BYTES] = {0, };
     uint8_t ba_case1[MAX_N_BYTES] = {0, };
@@ -141,13 +139,7 @@ void Test_CrossValidation(uint64_t n){
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    Marsz_Init(marsn_a);
-    Marsz_Init(marsn_b);
-    Marsz_Init(marsn_case1);
-    Marsz_Init(marsn_case3);
-    Marsz_Init(marsn_case5);
-    Marsz_Init(marsn_case7_q);
-    Marsz_Init(marsn_case7_r);
+    Marsz_Inits(marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r, NULL);
 
     srand(time(NULL));
     //srand(0x13579);
@@ -295,13 +287,7 @@ void Test_CrossValidation(uint64_t n){
 
     // clear:
     mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    Marsz_Final(marsn_a);
-    Marsz_Final(marsn_b);
-    Marsz_Final(marsn_case1);
-    Marsz_Final(marsn_case3);
-    Marsz_Final(marsn_case5);
-    Marsz_Final(marsn_case7_q);
-    Marsz_Final(marsn_case7_r);
+    Marsz_Finals(marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r, NULL);
 
     // print result:
     printf("Total case                 = %lu\n", (n));
@@ -431,10 +417,8 @@ void Test_CrossValidation_Custom(void){
     int flg = 0;
 
     //
-    mpz_t gn_a, gn_b;
-    mpz_t gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
-    marsz_t marsn_a, marsn_b;
-    marsz_t marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
+    mpz_t gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r;
+    marsz_t marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r;
     uint8_t ba_case1[MAX_N_BYTES] = {0, };
     uint8_t ba_case2[MAX_N_BYTES] = {0, };
     uint8_t ba_case3[MAX_N_BYTES] = {0, };
@@ -463,13 +447,7 @@ void Test_CrossValidation_Custom(void){
 
     // init:
     mpz_inits(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    Marsz_Init(marsn_a);
-    Marsz_Init(marsn_b);
-    Marsz_Init(marsn_case1);
-    Marsz_Init(marsn_case3);
-    Marsz_Init(marsn_case5);
-    Marsz_Init(marsn_case7_q);
-    Marsz_Init(marsn_case7_r);
+    Marsz_Inits(marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r, NULL);
 
 
     srand(1787809497);
@@ -614,13 +592,7 @@ void Test_CrossValidation_Custom(void){
 
     // clear:
     mpz_clears(gn_a, gn_b, gn_case2, gn_case4, gn_case6, gn_case8_q, gn_case8_r, NULL);
-    Marsz_Final(marsn_a);
-    Marsz_Final(marsn_b);
-    Marsz_Final(marsn_case1);
-    Marsz_Final(marsn_case3);
-    Marsz_Final(marsn_case5);
-    Marsz_Final(marsn_case7_q);
-    Marsz_Final(marsn_case7_r);
+    Marsz_Finals(marsn_a, marsn_b, marsn_case1, marsn_case3, marsn_case5, marsn_case7_q, marsn_case7_r, NULL);
 
     // print result:
     printf("Total case                 = %lu\n", (n));

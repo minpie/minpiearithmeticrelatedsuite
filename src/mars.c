@@ -2,7 +2,7 @@
 mars.c
 
 created: 2026.02.16
-last modified: 2026.10.01
+last modified: 2026.10.06
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -465,6 +465,134 @@ MARS_API_EXPORT void Marsz_Final(
     }
     pIn->pData = NULL;
     pIn->allocated = 0;
+
+    // return:
+    return; 
+}
+
+MARS_API_EXPORT void Marsz_Inits(
+    marszptr_t pIn,
+    ...
+)
+{
+    /*
+    void Marsz_Inits(
+        marszptr_t pIn,
+        ...
+    );
+
+    Arg:
+    - pIn: target (marsz_t) object pointer
+
+    Do:
+    - Allocate and initialize the target (bunz_t) object (pIn) refers.
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    //
+    // check exception condition:
+    if(!pIn){
+        // exception: pIn is NULL
+        return;
+    }
+    // else:
+    pIn->pData = (marsword_t *)malloc(CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t)); // allocate
+    if(!(pIn->pData)){
+        // exception: pData is NULL = failed to malloc()
+        return;
+    }
+    // else:
+    Marsh_Zeroize((void *)(pIn->pData), (CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t))); // reset to 0
+    pIn->allocated = CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS;
+
+
+    //
+    va_list ap;
+    marszptr_t varg = NULL;
+    va_start(ap, pIn);
+    for(;;){
+        varg = va_arg(ap, marszptr_t);
+        if(!varg){
+            // condition: varg is NULL
+            break;
+        }
+        // else: init
+        varg->pData = (marsword_t *)malloc(CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t)); // allocate
+        if(!(varg->pData)){
+            // exception: pData is NULL = failed to malloc()
+            return;
+        }
+        // else:
+        Marsh_Zeroize((void *)(varg->pData), (CONST_SIZE_DEFAULT_MARSZ_WORDS * sizeof(marsword_t))); // reset to 0
+        varg->allocated = CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS;
+    }
+    va_end(ap);
+    
+    // return:
+    return; 
+}
+
+MARS_API_EXPORT void Marsz_Finals(
+    marszptr_t pIn,
+    ...
+)
+{
+    /*
+    void Marsz_Finals(
+        marszptr_t pIn,
+        ...
+    );
+
+    Arg:
+    - pIn: target (marsz_t) object pointer
+
+    Do:
+    - Zerorize and Deallocate the target (bunz_t) object (pIn) refers.
+
+    Return:
+    - (NO RETURN)
+
+    Other info:
+    - nope
+    */
+    // check exception condition:
+    if(!pIn){
+        // exception: pIn is NULL
+        return;
+    }
+    // else:
+    if(pIn->pData){
+        // pIn->pData != NULL:
+        Marsh_Zeroize((void *)(pIn->pData), (ABS(pIn->allocated) * sizeof(marsword_t))); // reset to 0
+        free(pIn->pData);
+    }
+    pIn->pData = NULL;
+    pIn->allocated = 0;
+
+    //
+    va_list ap;
+    marszptr_t varg = NULL;
+    va_start(ap, pIn);
+    for(;;){
+        varg = va_arg(ap, marszptr_t);
+        if(!varg){
+            // condition: varg is NULL
+            break;
+        }
+        // else: final
+        if(varg->pData){
+            // pIn->pData != NULL:
+            Marsh_Zeroize((void *)(varg->pData), (ABS(varg->allocated) * sizeof(marsword_t))); // reset to 0
+            free(varg->pData);
+        }
+        varg->pData = NULL;
+        varg->allocated = 0;
+    }
+    va_end(ap);
 
     // return:
     return; 
