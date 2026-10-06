@@ -64,6 +64,11 @@ typedef _marsz_t marsz_t[1];
 typedef _marsz_t * marszptr_t;
 
 
+// marsz_t constant:
+MARS_API_EXPORT const marsz_t mars_zero; // constant for 0
+MARS_API_EXPORT const marsz_t mars_one; // constant for 0
+
+
 // function prototype:
 // Marsh_: utility function:
 MARS_API_EXPORT void Marsh_Memcpy(void * pOut, void * pIn, int32_t len);

@@ -21,22 +21,6 @@ version: 1.0.0
 #define MAX_N_BYTES 256
 
 
-//
-const marsword_t _nmarsword_zero[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {0, };
-const marsword_t _nmarsword_one[CONST_SIZE_DEFAULT_MARSZ_WORDS] = {1, };
-const marsz_t n_mars_zero = {
-    // pData:
-    (marsword_t *)_nmarsword_zero,
-    // allocated:
-    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
-}; // constant for 0
-const marsz_t n_mars_one = {
-    // pData:
-    (marsword_t *)_nmarsword_one,
-    // allocated:
-    (CONST_SIGN_POSITIVE * CONST_SIZE_DEFAULT_MARSZ_WORDS)
-}; // constant for 1
-
 // for dev:
 void Marsh_DbgPrintHex_BE(void * pData, int32_t len){
     // print as big endian.
@@ -133,7 +117,7 @@ void GetGcd(marszptr_t result, marszptr_t a, marszptr_t b)
 
     Marsz_Assign(r1, a);
     Marsz_Assign(r2, b);
-    while (Marsz_Compare(r2, (marszptr_t)n_mars_zero) > 0)
+    while (Marsz_Compare(r2, (marszptr_t)mars_zero) > 0)
     {
         Marsz_Div(q, tmp2, r1, r2); // q = r1 / r2
         Marsz_Mul(tmp1, q, r2);  // tmp1 = q * r2
@@ -153,10 +137,10 @@ void GetModularMultiplicativeInverse(marszptr_t a_1, marszptr_t n, marszptr_t a)
     Marsz_Inits(q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3, NULL);
     Marsz_Assign(r1, n);    // r1 = n;
     Marsz_Assign(r2, a);    // r2 = a
-    Marsz_Assign(t1, (marszptr_t)n_mars_zero); // t1 = 0
-    Marsz_Assign(t2, (marszptr_t)n_mars_one); // t2 = 1
+    Marsz_Assign(t1, (marszptr_t)mars_zero); // t1 = 0
+    Marsz_Assign(t2, (marszptr_t)mars_one); // t2 = 1
 
-    while (Marsz_Compare(r2, (marszptr_t)n_mars_zero))
+    while (Marsz_Compare(r2, (marszptr_t)mars_zero))
     {
         Marsz_Div(q, tmp3, r1, r2); // q = r1 / r2
         Marsz_Mul(tmp1, q, r2);  // tmp1 = q * r2
@@ -183,35 +167,35 @@ void KeyGeneration(marszptr_t e, marszptr_t d, marszptr_t p, marszptr_t q)
     Marsz_Inits(n, phi_n, i, tmp1, tmp2, n65537, NULL);
 
     // set i=2:
-    Marsz_Assign(i, (marszptr_t)n_mars_one);
-    Marsz_Add(i, i, (marszptr_t)n_mars_one);
+    Marsz_Assign(i, (marszptr_t)mars_one);
+    Marsz_Add(i, i, (marszptr_t)mars_one);
 
     // number generation: 65537
-    Marsz_Assign(n65537, (marszptr_t)n_mars_one);
+    Marsz_Assign(n65537, (marszptr_t)mars_one);
     Marsz_BitwiseLeftShift(n65537, n65537, 16);
-    Marsz_Add(n65537, n65537, (marszptr_t)n_mars_one);
+    Marsz_Add(n65537, n65537, (marszptr_t)mars_one);
 
     // get n , phi(n)
     Marsz_Mul(n, p, q);           // n = p * q;
-    Marsz_Sub(tmp1, p, (marszptr_t)n_mars_one);     // tmp1 = p - 1
-    Marsz_Sub(tmp2, q, (marszptr_t)n_mars_one);     // tmp2 = q - 1
+    Marsz_Sub(tmp1, p, (marszptr_t)mars_one);     // tmp1 = p - 1
+    Marsz_Sub(tmp2, q, (marszptr_t)mars_one);     // tmp2 = q - 1
     Marsz_Mul(phi_n, tmp1, tmp2); // phi_n = tmp1 * tmp2 = (p - 1) * (q - 1)
     printf("Done: Get n, phi_n\n");
 
     // get e
-    Marsz_Assign(tmp1, (marszptr_t)n_mars_zero);
-    Marsz_Assign(tmp2, (marszptr_t)n_mars_zero);
+    Marsz_Assign(tmp1, (marszptr_t)mars_zero);
+    Marsz_Assign(tmp2, (marszptr_t)mars_zero);
     while (Marsz_Compare(phi_n, i))
     {
         // loop 조건: i < phi_n
         GetGcd(tmp1, phi_n, i); // tmp1 = gcd(phi_n, i)
-        if (!Marsz_Compare(tmp1, (marszptr_t)n_mars_one))
+        if (!Marsz_Compare(tmp1, (marszptr_t)mars_one))
         {
             // gcd(phi_n, i) == 1
             Marsz_Assign(e, i); // e = i
             break;
         }
-        Marsz_Add(i, i, (marszptr_t)n_mars_one); // i++
+        Marsz_Add(i, i, (marszptr_t)mars_one); // i++
     }
     Marsz_Assign(e, n65537);
     printf("Done: Get e\n");
