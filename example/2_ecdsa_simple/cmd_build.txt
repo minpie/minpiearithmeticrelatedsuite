@@ -1,0 +1,8 @@
+#
+gcc \
+-I inc \
+-L lib \
+-l mars \
+-lm \
+-o example/2_ecdsa_simple/2_ecdsa_simple \
+example/2_ecdsa_simple/2_ecdsa_simple.c

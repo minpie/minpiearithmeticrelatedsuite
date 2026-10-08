@@ -2,7 +2,7 @@
 1_rsa_simple.c
 
 created: 2026.09.30
-last modified: 2026.10.06
+last modified: 2026.10.08
 author: minpie
 last modify: minpie
 version: 1.0.0
@@ -129,9 +129,9 @@ void GetGcd(marszptr_t result, marszptr_t a, marszptr_t b)
 
     Marsz_Finals(r, r1, r2, q, tmp1, tmp2, NULL);
 }
-void GetModularMultiplicativeInverse(marszptr_t a_1, marszptr_t n, marszptr_t a)
+void GetModuloMultiplicativeInverse(marszptr_t a_1, marszptr_t n, marszptr_t a)
 {
-    // ## 모듈러 곱셈 역 구하기
+    // ## 모듈로 곱셈 역 구하기
     // 확장 유클리드 알고리즘 사용
     marsz_t q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3;
     Marsz_Inits(q, r1, r2, r, t, t1, t2, tmp1, tmp2, tmp3, NULL);
@@ -201,7 +201,7 @@ void KeyGeneration(marszptr_t e, marszptr_t d, marszptr_t p, marszptr_t q)
     printf("Done: Get e\n");
 
     // get d
-    GetModularMultiplicativeInverse(d, phi_n, e);
+    GetModuloMultiplicativeInverse(d, phi_n, e);
     printf("Done: Get d\n");
 
     // end:
